@@ -7,7 +7,7 @@ class Module
     {
         if (defined('APPLICATION_ENV')) {
             if (APPLICATION_ENV == 'unittest') {
-                return include __DIR__ . '/test/config/module.config.php';
+                return include __DIR__ . '/test/LocGatewayManagerTest/config/module.config.php';
             }
         }
         return include __DIR__ . '/config/module.config.php';
@@ -30,10 +30,15 @@ class Module
             'invokables' => array(
                 'LocGatewayManager'  => __NAMESPACE__ . '\Manager',
                 'LocGatewayWorker'   => __NAMESPACE__ . '\GatewayWorker',
-                'LocGatewayFactory'  => __NAMESPACE__ . '\GatewayFactory',
+            ),
+            'factories' => array(
+                'LocGatewayFactory' =>  function ($sm) {
+                    $worker = $sm->get('LocGatewayWorker');
+                    return new GatewayFactory($worker);
+                }
             ),
             'shared' => array(
-                'LocGatewayWorker' => false,
+                'LocGatewayFactory' => false,
             ),
         );
     }

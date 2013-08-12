@@ -1,6 +1,8 @@
 <?php
 namespace LocGatewayManager;
 
+use Zend\Db;
+
 class GatewayFactory extends AbstractGatewayFactory
 {
     /**
@@ -35,24 +37,40 @@ class GatewayFactory extends AbstractGatewayFactory
     protected $tableGateway;
 
     /**
+     * @var \LocGatewayManager\GatewayWorker
+     */
+    protected $gatewayWorker;
+
+    /**
      * Create the tableGateway according to set worker property
      * @param GatewayWorker $worker
      * @return null
      */
     public function __construct(GatewayWorker $worker)
     {
+        $this->gatewayWorker = $worker;
+    }
+
+    /**
+     * Run the factory
+     * @param void
+     * @return null
+     */
+    public function run()
+    {
+        $worker = $this->getWorker();
+
         $adapterKeyName = $worker->getAdapterKeyName();
         $entityName     = $worker->getEntityName();
         $resultSetName  = $worker->getResultSetName();
         $featureName    = $worker->getFeatureName();
         $tableName      = $worker->getTableName();
 
-        $adapter = $this->createAdapter($adapterKeyName);
-        $entity  = $this->createEntity($entityName, $adapter);
-        $table   = $this->createTable($tableName, $entity);
-        $feature   = $this->createFeature($featureName);
-        $resultSet = $this->createResultSet($resultSetName);
-
+        $adapter = $this->initAdapter($adapterKeyName);
+        $entity  = $this->initEntity($entityName, $adapter);
+        $table   = $this->initTable($tableName, $entity, $adapter);
+        $feature   = $this->initFeature($featureName);
+        $resultSet = $this->initResultSet($resultSetName);
 
         $this->setAdapter($adapter);
         $this->setEntity($entity);
@@ -60,17 +78,34 @@ class GatewayFactory extends AbstractGatewayFactory
 
         // initialize feature
         if (isset($feature)) {
-            $feature->setLocGatewayFactory($this)->create();
-            $this->setFeature($feature);
+            if ($feature instanceof Feature\FeatureInterface) {
+                $feature->setLocGatewayFactory($this)->create();
+                $this->setFeature($feature->getFeature());
+            } else {
+                $this->setFeature($feature);
+            }
         }
 
         // initialize resultset
         if (isset($resultSet)) {
-            $resultSet->setLocGatewayFactory($this)->create();
-            $this->setResultSet($resultSet);
+            if ($resultSet instanceof ResultSet\ResultSetInterface) {
+                $resultSet->setLocGatewayFactory($this)->create();
+                $this->setResultSet($resultSet->getResultSet());
+            } else {
+                $this->setResultSet($resultSet);
+            }
         }
 
         $this->tableGateway = $worker->assemble($this);
+    }
+
+    /**
+     * Returns the gateway worker
+     * @return \LocGatewayManager\GatewayWorker
+     */
+    public function getWorker()
+    {
+        return $this->gatewayWorker;
     }
 
     /**
@@ -94,7 +129,7 @@ class GatewayFactory extends AbstractGatewayFactory
      * @param \Zend\Db\Adapter\Adapter $adapter
      * @return \LocGatewayManager\GatewayFactory
      */
-    public function setAdapter($adapter)
+    public function setAdapter(\Zend\Db\Adapter\Adapter $adapter)
     {
         $this->adapter = $adapter;
         return $this;
@@ -130,9 +165,9 @@ class GatewayFactory extends AbstractGatewayFactory
 
     /**
      * @param unknown $feature
-     * @return \LocGatewayManager\Feature\AbstractFeature
+     * @return Db\TableGateway\Feature\AbstractFeature
      */
-    public function setFeature(Feature\FeatureInterface $feature)
+    public function setFeature(Db\TableGateway\Feature\AbstractFeature $feature)
     {
         $this->feature = $feature;
         return $this;
@@ -147,9 +182,9 @@ class GatewayFactory extends AbstractGatewayFactory
     }
 
     /**
-     * @param ResultSet\ResultSetInterface $resultSet
+     * @param Db\ResultSet\ResultSetInterface $resultSet
      */
-    public function setResultSet(ResultSet\ResultSetInterface $resultSet)
+    public function setResultSet(Db\ResultSet\ResultSetInterface $resultSet)
     {
         $this->resultSet = $resultSet;
     }

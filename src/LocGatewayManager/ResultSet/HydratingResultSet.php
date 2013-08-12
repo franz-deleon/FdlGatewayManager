@@ -19,8 +19,8 @@ class HydratingResultSet extends AbstractResultSet
     public function create()
     {
         $this->resultSet = new ResultSet\HydratingResultSet(
-            new ClassMethods,
-            $this->getLocDbManager()->getEntity()
+            new ClassMethods(true),
+            $this->getLocGatewayFactory()->getEntity()
         );
     }
 

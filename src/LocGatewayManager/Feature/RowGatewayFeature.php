@@ -6,11 +6,6 @@ use Zend\Db\TableGateway\Feature;
 class RowGatewayFeature extends AbstractFeature
 {
     /**
-     * @var \Zend\Db\TableGateway\Feature\AbstractFeature
-     */
-    protected $feature;
-
-    /**
      * (non-PHPdoc)
      * @see \LocDb\Manager\AbstractDbManagerAware::create()
      */
@@ -22,15 +17,5 @@ class RowGatewayFeature extends AbstractFeature
         } else {
             $this->feature = new Feature\RowGatewayFeature();
         }
-    }
-
-    /**
-     * Retrieve the created feature
-     * @param void
-     * @return \Zend\Db\TableGateway\Feature\AbstractFeature
-     */
-    public function getFeature()
-    {
-        return $this->feature;
     }
 }

@@ -2,7 +2,7 @@
 namespace LocGatewayManager;
 
 use Zend\ServiceManager;
-use Zend\Filter\Word\UnderscoreToCamelCase;
+use Zend\Filter\Word;
 use Zend\Db\Adapter\Adapter;
 
 abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAwareInterface
@@ -24,7 +24,7 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
      * @throws \ErrorException
      * @return \Zend\Db\Adapter\Adapter
      */
-    public function createAdapter($adapterKeyName = null)
+    public function initAdapter($adapterKeyName = null)
     {
         $config = $this->getServiceLocator()->get('config');
         switch (true) {
@@ -66,15 +66,19 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
      * @throws \ErrorException
      * @return Object
      */
-    public function createEntity($entityName, Db\Adapter $adapter)
+    public function initEntity($entityName, Adapter $adapter)
     {
-        $config = $this->getServiceLocator()->get('config');
-        $class = $config[self::CONFIG_LOC_DB]['entities'] . "\\" .  $entityName;
-
-        if (!class_exists($class)) {
-            $class = $class . 'Entity';
+        // if fqns return it
+        if (class_exists($entityName)) {
+            $class = $entityName;
+        } else {
+            $config = $this->getServiceLocator()->get('config');
+            $class = $config[self::CONFIG_LOC_DB]['entities'] . "\\" .  $entityName;
             if (!class_exists($class)) {
-                throw new Exception\ClassNotExistException('Entity ' . $class . ' does not exist.');
+                $class = $class . 'Entity';
+                if (!class_exists($class)) {
+                    throw new Exception\ClassNotExistException('Entity ' . $class . ' does not exist.');
+                }
             }
         }
 
@@ -86,17 +90,19 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
      * @throws Exception\ClassNotExistException
      * @return Feature\AbstractFeature|null
      */
-    public function createFeature($featureName = null)
+    public function initFeature($featureName = null)
     {
         if (isset($featureName)) {
-            $wordfilter = new UnderscoreToCamelCase();
-            $featureName = $wordfilter->filter($featureName);
-            $class = __NAMESPACE__ . "\\Feature\\{$featureName}";
-
-            if (!class_exists($class)) {
-                throw new Exception\ClassNotExistException('Class: ' . $class . ', does not exist.');
+            if (class_exists($featureName)) {
+                $class = $featureName;
+            } else {
+                $wordfilter = new Word\UnderscoreToCamelCase();
+                $featureName = $wordfilter->filter($featureName);
+                $class = __NAMESPACE__ . "\\Feature\\{$featureName}";
+                if (!class_exists($class)) {
+                    throw new Exception\ClassNotExistException('Class: ' . $class . ', does not exist.');
+                }
             }
-
             return new $class();
         }
     }
@@ -106,17 +112,19 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
      * @throws Exception\ClassNotExistException
      * @return ResultSet\AbstractResultSet|null
      */
-    public function createResultSet($resultSetName = null)
+    public function initResultSet($resultSetName = null)
     {
         if (isset($resultSetName)) {
-            $wordfilter = new UnderscoreToCamelCase();
-            $resultSetName = $wordfilter->filter($resultSetName);
-            $class = __NAMESPACE__ . "\\ResultSet\\{$resultSetName}";
-
-            if (!class_exists($class)) {
-                throw new Exception\ClassNotExistException('Class ' . $class . ' does not exist.');
+            if (class_exists($resultSetName)) {
+                $class = $resultSetName;
+            } else {
+                $wordfilter = new Word\UnderscoreToCamelCase();
+                $resultSetName = $wordfilter->filter($resultSetName);
+                $class = __NAMESPACE__ . "\\ResultSet\\{$resultSetName}";
+                if (!class_exists($class)) {
+                    throw new Exception\ClassNotExistException('Class ' . $class . ' does not exist.');
+                }
             }
-
             return new $class();
         }
     }
@@ -124,10 +132,11 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
     /**
      * @param string $tableName
      * @param string $default
+     * @param Zend\Db\Adapter\Adapter
      * @throws Exception\ClassNotExistException
      * @return string
      */
-    public function createTable($tableName = null, $default = null)
+    public function initTable($tableName = null, $default = null, Adapter $adapter = null)
     {
         if (isset($tableName)) {
             $config = $this->getServiceLocator()->get('config');
@@ -143,7 +152,7 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
             // if no class then use the default entity classname
             if ($class !== null) {
                 $table = new $class();
-                if (!$table instanceof Gateway\TableInterface) {
+                if ($table instanceof Gateway\TableInterface) {
                     return $table->getTableName();
                 } elseif (!empty($table->tableName)) {
                     return $this->tableName;
@@ -152,21 +161,24 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
         }
 
         if (is_object($default)) {
-            return $this->normalizeTablename(get_class($default));
+            return $this->normalizeTablename(get_class($default), $adapter);
         }
 
-        // if nothing still just return tableName
+        // if nothing still, just return tableName
         if (is_string($tableName)) {
             return $tableName;
         }
+
+        throw new Exception\InvalidArgumentException('Cannot identify tablename.');
     }
 
     /**
-     * Normalize a table name
+     * Normalize a tablename
      * @param string $tablename
+     * @param Zend\Db\Adapter\Adapter
      * @return Ambigous <string, string, mixed>
      */
-    protected function normalizeTablename($tablename)
+    protected function normalizeTablename($tablename, $adapter = null)
     {
         $wordFilter = new Word\CamelCaseToUnderscore;
         $tableArray = explode('_', $wordFilter->filter($tablename));
@@ -175,8 +187,17 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
             array_pop($tableArray);
         }
         $tablename = implode('_', $tableArray);
-        $wordFilter = new Word\UnderscoreToCamelCase;
-        return ucfirst($wordFilter->filter($tablename));
+        $namespacePos = strrpos($tablename, "\\");
+        if ($namespacePos > 0) {
+            $tablename = substr($tablename, $namespacePos + 1);
+        }
+
+        // check if oracle driver
+        if (isset($adapter) && $adapter->getDriver()->getDatabasePlatformName() === 'Oracle') {
+            $tablename = strtoupper($tablename);
+        }
+
+        return $tablename;
     }
 
     /**

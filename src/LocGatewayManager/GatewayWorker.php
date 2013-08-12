@@ -31,6 +31,11 @@ class GatewayWorker implements WorkerInterface
     protected $tableName;
 
     /**
+     * @var TableGateway
+     */
+    protected $tableGateway;
+
+    /**
      * The worker assembles the table gateway
      * @param string $entityName Table Entity
      * @return TableGateway;
@@ -44,7 +49,7 @@ class GatewayWorker implements WorkerInterface
         $table     = $factory->getTable();
 
         // assemble
-        return new TableGateway($table, $adapter, $feature, $resultSet);
+        return $this->getTableGateway($table, $adapter, $feature, $resultSet);
     }
 
     /**
@@ -143,5 +148,32 @@ class GatewayWorker implements WorkerInterface
     public function setTableName($table)
     {
         $this->tableName = $table;
+    }
+
+    /**
+     * @return \Zend\Db\TableGateway\TableGateway
+     */
+    public function getTableGateway($table = null, $adapter = null, $feature = null, $resultSet = null)
+    {
+        if (null === $this->tableGateway) {
+            $this->setTableGateway(new TableGateway($table, $adapter, $feature, $resultSet));
+        }
+        return $this->tableGateway;
+    }
+
+    /**
+     * @param TableGateway $tableGateway
+     */
+    public function setTableGateway(TableGateway $tableGateway)
+    {
+        $this->tableGateway = $tableGateway;
+    }
+
+    public function reset()
+    {
+        $properties = get_object_vars($this);
+        while(list($key) = each($properties)) {
+            $this->{$key} = null;
+        }
     }
 }
