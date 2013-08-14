@@ -42,16 +42,6 @@ class GatewayFactory extends AbstractGatewayFactory
     protected $gatewayWorker;
 
     /**
-     * Create the tableGateway according to set worker property
-     * @param GatewayWorker $worker
-     * @return null
-     */
-    public function __construct(GatewayWorker $worker)
-    {
-        $this->gatewayWorker = $worker;
-    }
-
-    /**
      * Run the factory
      * @param void
      * @return null
@@ -59,44 +49,47 @@ class GatewayFactory extends AbstractGatewayFactory
     public function run()
     {
         $worker = $this->getWorker();
+        if (isset($worker) && $worker instanceof GatewayWorker) {
+            $adapterKeyName = $worker->getAdapterKeyName();
+            $entityName     = $worker->getEntityName();
+            $resultSetName  = $worker->getResultSetName();
+            $featureName    = $worker->getFeatureName();
+            $tableName      = $worker->getTableName();
 
-        $adapterKeyName = $worker->getAdapterKeyName();
-        $entityName     = $worker->getEntityName();
-        $resultSetName  = $worker->getResultSetName();
-        $featureName    = $worker->getFeatureName();
-        $tableName      = $worker->getTableName();
+            $adapter = $this->initAdapter($adapterKeyName);
+            $entity  = $this->initEntity($entityName, $adapter);
+            $table   = $this->initTable($tableName, $entity, $adapter);
+            $feature   = $this->initFeature($featureName);
+            $resultSet = $this->initResultSet($resultSetName);
 
-        $adapter = $this->initAdapter($adapterKeyName);
-        $entity  = $this->initEntity($entityName, $adapter);
-        $table   = $this->initTable($tableName, $entity, $adapter);
-        $feature   = $this->initFeature($featureName);
-        $resultSet = $this->initResultSet($resultSetName);
+            $this->setAdapter($adapter);
+            $this->setEntity($entity);
+            $this->setTable($table);
 
-        $this->setAdapter($adapter);
-        $this->setEntity($entity);
-        $this->setTable($table);
-
-        // initialize feature
-        if (isset($feature)) {
-            if ($feature instanceof Feature\FeatureInterface) {
-                $feature->setLocGatewayFactory($this)->create();
-                $this->setFeature($feature->getFeature());
-            } else {
-                $this->setFeature($feature);
+            // initialize feature
+            if (isset($feature)) {
+                if ($feature instanceof Feature\FeatureInterface) {
+                    $feature->setLocGatewayFactory($this)->create();
+                    $this->setFeature($feature->getFeature());
+                } else {
+                    $this->setFeature($feature);
+                }
             }
-        }
 
-        // initialize resultset
-        if (isset($resultSet)) {
-            if ($resultSet instanceof ResultSet\ResultSetInterface) {
-                $resultSet->setLocGatewayFactory($this)->create();
-                $this->setResultSet($resultSet->getResultSet());
-            } else {
-                $this->setResultSet($resultSet);
+            // initialize resultset
+            if (isset($resultSet)) {
+                if ($resultSet instanceof ResultSet\ResultSetInterface) {
+                    $resultSet->setLocGatewayFactory($this)->create();
+                    $this->setResultSet($resultSet->getResultSet());
+                } else {
+                    $this->setResultSet($resultSet);
+                }
             }
-        }
 
-        $worker->assemble($this);
+            $worker->assemble($this);
+        } else {
+            throw new Exception\ClassNotExistException('There is no worker defined');
+        }
     }
 
     /**
@@ -124,6 +117,12 @@ class GatewayFactory extends AbstractGatewayFactory
     public function getWorker()
     {
         return $this->gatewayWorker;
+    }
+
+    public function setWorker(GatewayWorker $worker = null)
+    {
+        $this->gatewayWorker = $worker;
+        return $this;
     }
 
     /**
@@ -212,5 +211,19 @@ class GatewayFactory extends AbstractGatewayFactory
     public function setTable($table)
     {
         $this->table = $table;
+    }
+
+    /**
+     * Reset the gateway worker
+     * @param void
+     */
+    public function reset()
+    {
+        $properties = get_object_vars($this);
+        while(list($key) = each($properties)) {
+            if ($key != 'serviceLocator') {
+                $this->{$key} = null;
+            }
+        }
     }
 }

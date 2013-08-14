@@ -151,18 +151,6 @@ class GatewayWorker implements WorkerInterface, ServiceManager\ServiceLocatorAwa
     }
 
     /**
-     * Reset the gateway worker
-     * @param void
-     */
-    public function reset()
-    {
-        $properties = get_object_vars($this);
-        while(list($key) = each($properties)) {
-            $this->{$key} = null;
-        }
-    }
-
-    /**
      * Get service locator
      * @return ServiceLocatorInterface
      */

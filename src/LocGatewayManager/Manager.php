@@ -47,13 +47,14 @@ class Manager extends AbstractManager
 
         // is a Service Manager factory which injects the worker
         $factory = $this->getGatewayFactory();
-        $factory->run();
-
-        // reset the worker
-        $worker->reset();
+        $factory->setWorker($worker)
+                ->run();
 
         $tableGateway = $factory->getTableGateway();
         $this->saveGateway($tableGateway, $index);
+
+        //reset the factory
+        $factory->reset();
 
         return $tableGateway;
     }

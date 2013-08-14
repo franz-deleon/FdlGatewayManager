@@ -24,6 +24,10 @@ class Module
         );
     }
 
+    public function init() {
+
+    }
+
     public function getServiceConfig()
     {
         return array(
@@ -33,8 +37,7 @@ class Module
             ),
             'factories' => array(
                 'LocGatewayFactory' =>  function ($sm) {
-                    $worker = $sm->get('LocGatewayWorker');
-                    return new GatewayFactory($worker);
+                    return new GatewayFactory();
                 },
                 'LocGatewayTableGateway' => function ($sm) {
                     $config = $sm->get('config');
@@ -55,6 +58,10 @@ class Module
                         $gwfactory->getResultSet()
                     );
                 }
+            ),
+            'shared' => array(
+                'LocGatewayWorker' => false,
+                'LocGatewayTableGateway' => false,
             ),
         );
     }

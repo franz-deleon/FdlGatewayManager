@@ -167,16 +167,5 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
             $this->GatewayWorker->getTableName()
         );
     }
-
-    /**
-     * @group Reset
-     */
-    public function testReset()
-    {
-        $this->GatewayWorker->setAdapterKeyName('someXXXKETYzzz');
-        $this->assertEquals('someXXXKETYzzz', $this->GatewayWorker->getAdapterKeyName());
-        $this->GatewayWorker->reset();
-        $this->assertNull($this->GatewayWorker->getAdapterKeyName());
-    }
 }
 

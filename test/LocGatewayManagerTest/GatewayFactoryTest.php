@@ -127,7 +127,7 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
                            ->method('setResultSet')
                            ->will($this->returnSelf());
 
-        $gatewayFactoryMock->__construct($workerMock);
+        $gatewayFactoryMock->setWorker($workerMock);
         $gatewayFactoryMock->run();
 
         // test with feature and result return origin objects
@@ -144,8 +144,20 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
                             ->method('initResultSet')
                             ->will($this->returnValue($zendResultSet));
 
-        $gatewayFactoryMock2->__construct($workerMock);
+        $gatewayFactoryMock2->setWorker($workerMock);
         $gatewayFactoryMock2->run();
+    }
+
+    /**
+     * @expectedException LocGatewayManager\Exception\ClassNotExistException
+     * @group Run
+     */
+    public function testRunWithNoWorker()
+    {
+        $gatewayFactoryMock = $this->GatewayFactory
+                                   ->setMethods(null)
+                                   ->getMock();
+        $gatewayFactoryMock->run();
     }
 
     /**
@@ -295,5 +307,17 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
         $tableGateway->setTable('zzTABLEzz');
 
         $this->assertEquals('zzTABLEzz', $tableGateway->getTable());
+    }
+
+    /**
+     * @group Reset
+     */
+    public function testReset()
+    {
+        $tableGateway = $this->GatewayFactory->setMethods(null)->getMock();
+        $tableGateway->setTable('sTABLEs');
+        $this->assertEquals('sTABLEs', $tableGateway->getTable());
+        $tableGateway->reset();
+        $this->assertNull($tableGateway->getTable());
     }
 }
