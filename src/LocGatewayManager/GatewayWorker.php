@@ -168,9 +168,6 @@ class GatewayWorker implements WorkerInterface, ServiceManager\ServiceLocatorAwa
      */
     public function getServiceLocator()
     {
-        if (null === $this->serviceLocator) {
-            throw new Exception\ClassNotExistException('Service Locator is not set');
-        }
         return $this->serviceLocator;
     }
 

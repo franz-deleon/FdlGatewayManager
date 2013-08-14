@@ -36,40 +36,26 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
 	 */
     public function testAssemble()
     {
+        $smStub = $this->getMockBuilder('\Zend\ServiceManager\ServiceManager')
+                       ->setMethods(array('get'))
+                       ->disableOriginalConstructor()
+                       ->getMock();
+        $smStub->expects($this->once())
+               ->method('get')
+               ->will($this->returnValue(
+                   $this->getMock('\Zend\Db\TableGateway\TableGateway', array(), array(), '', false)
+               ));
+
         $factoryMock = $this->getMockBuilder('LocGatewayManager\GatewayFactory')
-                            ->setMethods(array('getAdapter', 'getFeature', 'getResultSet', 'getTable', 'getTableGateway'))
+                            ->setMethods(array('setTableGateway'))
                             ->disableOriginalConstructor()
                             ->getMock();
         $factoryMock->expects($this->any())
-                    ->method('getAdapter')
-                    ->will($this->returnValue(
-                        $this->getMock('\Zend\Db\Adapter\Adapter', array(), array(), '', false)
-                    ));
-        $factoryMock->expects($this->any())
-                    ->method('getFeature')
-                    ->will($this->returnValue(
-                        $this->getMock('\Zend\Db\TableGateway\Feature\RowGatewayFeature', array(), array(), '', false)
-                    ));
-        $factoryMock->expects($this->any())
-                    ->method('getResultSet')
-                    ->will($this->returnValue(
-                        $this->getMock('\Zend\Db\ResultSet\HydratingResultSet', array(), array(), '', false)
-                    ));
-        $factoryMock->expects($this->once())
-                    ->method('getTable')
-                    ->will($this->returnValue('someTableName'));
-        $factoryMock->expects($this->any())
-                    ->method('getTableGateway')
-                    ->with(
-                        $this->isType('string'),
-                        $this->isInstanceOf('\Zend\Db\Adapter\Adapter'),
-                        $this->isInstanceOf('\Zend\Db\TableGateway\Feature\RowGatewayFeature'),
-                        $this->isInstanceOf('\Zend\Db\ResultSet\HydratingResultSet')
-                    )
-                    ->will($this->returnValue(
-                        $this->getMock('\Zend\Db\TableGateway\TableGateway', array(), array(), '', false)
-                    ));
+                    ->method('setTableGateway')
+                    ->with($this->isInstanceOf('\Zend\Db\TableGateway\TableGateway'))
+                    ->will($this->returnSelf());
 
+        $this->GatewayWorker->setServiceLocator($smStub);
         $this->GatewayWorker->assemble($factoryMock);
     }
 

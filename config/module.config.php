@@ -1,7 +1,7 @@
 <?php
 return array(
     'loc_gateway_manager_assets' => array(
-//         'gateway'  => 'default',
+        'gateway'  => 'default',
 //         'entities' => 'LocGatewayManagerTest\Entity',
 //         'tables'   => 'LocGatewayManagerTest\Table',
     ),

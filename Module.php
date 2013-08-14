@@ -38,9 +38,9 @@ class Module
                 },
                 'LocGatewayTableGateway' => function ($sm) {
                     $config = $sm->get('config');
-                    if (isset($config['loc_gateway_manager_assets']['gateway'])) {
+                    if (!empty($config['loc_gateway_manager_assets']['gateway'])) {
                         $gatewayName = $config['loc_gateway_manager_assets']['gateway'];
-                        if (isset($config['loc_gateway_manager_gateways'][$gatewayName])) {
+                        if (!empty($config['loc_gateway_manager_gateways'][$gatewayName])) {
                             $gateway = $config['loc_gateway_manager_gateways'][$gatewayName];
                         }
                     } else {
@@ -55,9 +55,6 @@ class Module
                         $gwfactory->getResultSet()
                     );
                 }
-            ),
-            'shared' => array(
-                //'LocGatewayFactory' => false,
             ),
         );
     }
