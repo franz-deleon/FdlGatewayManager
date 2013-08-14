@@ -10,7 +10,7 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
     /**
      * @var string Name to look for in configurations
      */
-    const CONFIG_LOC_DB = 'loc_gateway_manager';
+    const CONFIG_LOC_DB = 'loc_gateway_manager_assets';
 
     /**
      * @var ServiceManager\ServiceManager
@@ -46,9 +46,9 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
             }
         } else {
             if (is_array($db)) {
-                if (isset($db['default'])) { // look for defaults
+                if (isset($db['default'])) { // look for default key
                     $db = is_array($db['default']) ? $db['default'] : null;
-                } else {
+                } else { // just get the input in the config
                     $firstConfig = array_shift($db);
                     if (is_array($firstConfig)) {
                         $db = $firstConfig;
@@ -131,12 +131,12 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
 
     /**
      * @param string $tableName
-     * @param string $default
+     * @param string $entity
      * @param Zend\Db\Adapter\Adapter
      * @throws Exception\ClassNotExistException
      * @return string
      */
-    public function initTable($tableName = null, $default = null, Adapter $adapter = null)
+    public function initTable($tableName = null, $entity = null, Adapter $adapter = null)
     {
         if (isset($tableName)) {
             $config = $this->getServiceLocator()->get('config');
@@ -158,14 +158,14 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
                     return $this->tableName;
                 }
             }
-        }
-
-        if (is_object($default)) {
-            return $this->normalizeTablename(get_class($default), $adapter);
-        }
-
-        // if nothing still, just return tableName
-        if (is_string($tableName)) {
+        } elseif (is_object($entity)) {
+            // check first if there is a $tableName property in entity obj
+            if (property_exists($entity, 'tableName')) {
+                return $entity->tableName;
+            } else {
+                return $this->normalizeTablename(get_class($entity), $adapter);
+            }
+        } elseif (is_string($tableName)) {
             return $tableName;
         }
 

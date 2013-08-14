@@ -6,7 +6,8 @@ use Zend\Db\TableGateway;
 class Manager extends AbstractManager
 {
     /**
-     * @var array Static registry collection of instantiated gateways
+     * Static registry collection of instantiated gateways
+     * @var array
      */
     protected static $tableGateways = array();
 
@@ -44,12 +45,16 @@ class Manager extends AbstractManager
             $worker->setResultSetName($params['result_set_name']);
         }
 
-        $factory = $this->getGatewayFactory(); // is an sm factory which injects the worker
+        // is a Service Manager factory which injects the worker
+        $factory = $this->getGatewayFactory();
         $factory->run();
-        $tableGateway = $factory->getTableGateway();
+
+        // reset the worker
         $worker->reset();
 
+        $tableGateway = $factory->getTableGateway();
         $this->saveGateway($tableGateway, $index);
+
         return $tableGateway;
     }
 

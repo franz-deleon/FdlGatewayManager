@@ -2,8 +2,9 @@
 namespace LocGatewayManager;
 
 use Zend\Db\TableGateway\TableGateway;
+use Zend\ServiceManager;
 
-class GatewayWorker implements WorkerInterface
+class GatewayWorker implements WorkerInterface, ServiceManager\ServiceLocatorAwareInterface
 {
     /**
      * @var string
@@ -36,20 +37,19 @@ class GatewayWorker implements WorkerInterface
     protected $tableGateway;
 
     /**
+     * @var ServiceManager\ServiceLocatorInterface
+     */
+    protected $serviceLocator;
+
+    /**
      * The worker assembles the table gateway
      * @param string $entityName Table Entity
      * @return TableGateway;
      */
     public function assemble(GatewayFactory $factory)
     {
-        // main assembling starts now
-        $adapter   = $factory->getAdapter();
-        $feature   = $factory->getFeature();
-        $resultSet = $factory->getResultSet();
-        $table     = $factory->getTable();
-
-        // assemble
-        return $this->getTableGateway($table, $adapter, $feature, $resultSet);
+        $tableGateway = $this->getServiceLocator()->get('LocGatewayTableGateway');
+        $factory->setTableGateway($tableGateway);
     }
 
     /**
@@ -151,29 +151,36 @@ class GatewayWorker implements WorkerInterface
     }
 
     /**
-     * @return \Zend\Db\TableGateway\TableGateway
+     * Reset the gateway worker
+     * @param void
      */
-    public function getTableGateway($table = null, $adapter = null, $feature = null, $resultSet = null)
-    {
-        if (null === $this->tableGateway) {
-            $this->setTableGateway(new TableGateway($table, $adapter, $feature, $resultSet));
-        }
-        return $this->tableGateway;
-    }
-
-    /**
-     * @param TableGateway $tableGateway
-     */
-    public function setTableGateway(TableGateway $tableGateway)
-    {
-        $this->tableGateway = $tableGateway;
-    }
-
     public function reset()
     {
         $properties = get_object_vars($this);
         while(list($key) = each($properties)) {
             $this->{$key} = null;
         }
+    }
+
+    /**
+     * Get service locator
+     * @return ServiceLocatorInterface
+     */
+    public function getServiceLocator()
+    {
+        if (null === $this->serviceLocator) {
+            throw new Exception\ClassNotExistException('Service Locator is not set');
+        }
+        return $this->serviceLocator;
+    }
+
+    /**
+     * Set service locator
+     * @param ServiceLocatorInterface $serviceLocator
+     */
+    public function setServiceLocator(ServiceManager\ServiceLocatorInterface $serviceLocator)
+    {
+        $this->serviceLocator = $serviceLocator;
+        return $this;
     }
 }

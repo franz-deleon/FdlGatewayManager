@@ -32,7 +32,7 @@ class GatewayFactory extends AbstractGatewayFactory
     protected $table;
 
     /**
-     * @var \Zend\Db\TableGateway\TableGateway
+     * @var \Zend\Db\TableGateway\AbstractTableGateway
      */
     protected $tableGateway;
 
@@ -96,7 +96,25 @@ class GatewayFactory extends AbstractGatewayFactory
             }
         }
 
-        $this->tableGateway = $worker->assemble($this);
+        $worker->assemble($this);
+    }
+
+    /**
+     * @return \Zend\Db\TableGateway\AbstractTableGateway
+     */
+    public function getTableGateway()
+    {
+        return $this->tableGateway;
+    }
+
+    /**
+     * @param Db\TableGateway\AbstractTableGateway $tableGateway
+     * @return \LocGatewayManager\GatewayFactory
+     */
+    public function setTableGateway(Db\TableGateway\AbstractTableGateway $tableGateway)
+    {
+        $this->tableGateway = $tableGateway;
+        return $this;
     }
 
     /**
@@ -106,15 +124,6 @@ class GatewayFactory extends AbstractGatewayFactory
     public function getWorker()
     {
         return $this->gatewayWorker;
-    }
-
-    /**
-     * Returns created tablegateway
-     * @return \Zend\Db\TableGateway\TableGateway
-     */
-    public function getTableGateway()
-    {
-        return $this->tableGateway;
     }
 
     /**
@@ -129,7 +138,7 @@ class GatewayFactory extends AbstractGatewayFactory
      * @param \Zend\Db\Adapter\Adapter $adapter
      * @return \LocGatewayManager\GatewayFactory
      */
-    public function setAdapter(\Zend\Db\Adapter\Adapter $adapter)
+    public function setAdapter(Db\Adapter\Adapter $adapter)
     {
         $this->adapter = $adapter;
         return $this;

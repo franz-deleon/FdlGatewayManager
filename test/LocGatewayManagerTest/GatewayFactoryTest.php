@@ -149,14 +149,21 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-	 * Tests GatewayFactory->getTableGateway()
-	 * @group TableGateway
-	 */
+     * @group CreateTableGateway
+     */
     public function testGetTableGateway()
     {
         $tableGateway = $this->GatewayFactory->setMethods(null)->getMock();
-
         $this->assertNull($tableGateway->getTableGateway());
+    }
+
+    /**
+     * @group CreateTableGateway
+     */
+    public function testSetTableGateway()
+    {
+        $tableGateway = $this->GatewayFactory->setMethods(null)->getMock();
+        $tableGateway->setTableGateway($this->getMock('\Zend\Db\TableGateway\TableGateway', array(), array(), '', false));
     }
 
     /**

@@ -37,24 +37,38 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
     public function testAssemble()
     {
         $factoryMock = $this->getMockBuilder('LocGatewayManager\GatewayFactory')
-                            ->setMethods(array('getAdapter', 'getFeature', 'getResultSet', 'getTable'))
+                            ->setMethods(array('getAdapter', 'getFeature', 'getResultSet', 'getTable', 'getTableGateway'))
                             ->disableOriginalConstructor()
                             ->getMock();
         $factoryMock->expects($this->any())
                     ->method('getAdapter')
-                    ->will($this->returnValue('adapter'));
+                    ->will($this->returnValue(
+                        $this->getMock('\Zend\Db\Adapter\Adapter', array(), array(), '', false)
+                    ));
         $factoryMock->expects($this->any())
                     ->method('getFeature')
-                    ->will($this->returnValue('feature'));
+                    ->will($this->returnValue(
+                        $this->getMock('\Zend\Db\TableGateway\Feature\RowGatewayFeature', array(), array(), '', false)
+                    ));
         $factoryMock->expects($this->any())
-                    ->method('getAdapter')
-                    ->will($this->returnValue('resultset'));
+                    ->method('getResultSet')
+                    ->will($this->returnValue(
+                        $this->getMock('\Zend\Db\ResultSet\HydratingResultSet', array(), array(), '', false)
+                    ));
+        $factoryMock->expects($this->once())
+                    ->method('getTable')
+                    ->will($this->returnValue('someTableName'));
         $factoryMock->expects($this->any())
-                    ->method('getAdapter')
-                    ->will($this->returnValue('table'));
-
-        $tableGatewayMock = $this->getMock('\Zend\Db\TableGateway\TableGateway', array(), array(), '', false);
-        $this->GatewayWorker->setTableGateway($tableGatewayMock);
+                    ->method('getTableGateway')
+                    ->with(
+                        $this->isType('string'),
+                        $this->isInstanceOf('\Zend\Db\Adapter\Adapter'),
+                        $this->isInstanceOf('\Zend\Db\TableGateway\Feature\RowGatewayFeature'),
+                        $this->isInstanceOf('\Zend\Db\ResultSet\HydratingResultSet')
+                    )
+                    ->will($this->returnValue(
+                        $this->getMock('\Zend\Db\TableGateway\TableGateway', array(), array(), '', false)
+                    ));
 
         $this->GatewayWorker->assemble($factoryMock);
     }
@@ -166,6 +180,17 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
             'hhgghh',
             $this->GatewayWorker->getTableName()
         );
+    }
+
+    /**
+     * @group Reset
+     */
+    public function testReset()
+    {
+        $this->GatewayWorker->setAdapterKeyName('someXXXKETYzzz');
+        $this->assertEquals('someXXXKETYzzz', $this->GatewayWorker->getAdapterKeyName());
+        $this->GatewayWorker->reset();
+        $this->assertNull($this->GatewayWorker->getAdapterKeyName());
     }
 }
 

@@ -35,10 +35,29 @@ class Module
                 'LocGatewayFactory' =>  function ($sm) {
                     $worker = $sm->get('LocGatewayWorker');
                     return new GatewayFactory($worker);
+                },
+                'LocGatewayTableGateway' => function ($sm) {
+                    $config = $sm->get('config');
+                    if (isset($config['loc_gateway_manager_assets']['gateway'])) {
+                        $gatewayName = $config['loc_gateway_manager_assets']['gateway'];
+                        if (isset($config['loc_gateway_manager_gateways'][$gatewayName])) {
+                            $gateway = $config['loc_gateway_manager_gateways'][$gatewayName];
+                        }
+                    } else {
+                        $gateway = $config['loc_gateway_manager_gateways']['default'];
+                    }
+
+                    $gwfactory = $sm->get('LocGatewayFactory');
+                    return new $gateway(
+                        $gwfactory->getTable(),
+                        $gwfactory->getAdapter(),
+                        $gwfactory->getFeature(),
+                        $gwfactory->getResultSet()
+                    );
                 }
             ),
             'shared' => array(
-                'LocGatewayFactory' => false,
+                //'LocGatewayFactory' => false,
             ),
         );
     }
