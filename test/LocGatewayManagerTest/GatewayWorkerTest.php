@@ -74,11 +74,12 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
 	 */
     public function testSetAdapterKeyName()
     {
-        $this->GatewayWorker->setAdapterKeyName('xx1234xx');
+        $setter = $this->GatewayWorker->setAdapterKeyName('xx1234xx');
         $this->assertEquals(
             'xx1234xx',
             $this->GatewayWorker->getAdapterKeyName()
         );
+        $this->assertNotNull($setter);
     }
 
     /**
@@ -96,11 +97,12 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
 	 */
     public function testSetEntityName()
     {
-        $this->GatewayWorker->setEntityName('ss1234ss');
+        $setter = $this->GatewayWorker->setEntityName('ss1234ss');
         $this->assertEquals(
             'ss1234ss',
             $this->GatewayWorker->getEntityName()
         );
+        $this->assertNotNull($setter);
     }
 
     /**
@@ -118,11 +120,12 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
 	 */
     public function testSetFeatureName()
     {
-        $this->GatewayWorker->setFeatureName('ddssdd');
+        $setter = $this->GatewayWorker->setFeatureName('ddssdd');
         $this->assertEquals(
             'ddssdd',
             $this->GatewayWorker->getFeatureName()
         );
+        $this->assertNotNull($setter);
     }
 
     /**
@@ -140,11 +143,12 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
 	 */
     public function testSetResultSetName()
     {
-        $this->GatewayWorker->setResultSetName('hithere');
+        $setter = $this->GatewayWorker->setResultSetName('hithere');
         $this->assertEquals(
             'hithere',
             $this->GatewayWorker->getResultSetName()
         );
+        $this->assertNotNull($setter);
     }
 
     /**
@@ -161,11 +165,21 @@ class GatewayWorkerTest extends \PHPUnit_Framework_TestCase
 	 */
     public function testSetTableName()
     {
-        $this->GatewayWorker->setTableName('hhgghh');
+        $setter = $this->GatewayWorker->setTableName('hhgghh');
         $this->assertEquals(
             'hhgghh',
             $this->GatewayWorker->getTableName()
         );
+        $this->assertNotNull($setter);
+    }
+
+    /**
+	 * Tests GatewayWorker->setTableGatewayName()
+	 * @group TableName
+	 */
+    public function testSetTableGatewayName()
+    {
+        $this->assertNotNull($this->GatewayWorker->setTableGatewayName('sometable'));
     }
 }
 

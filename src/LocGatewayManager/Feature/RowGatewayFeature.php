@@ -11,9 +11,18 @@ class RowGatewayFeature extends AbstractFeature
      */
     public function create()
     {
-        $entity = $this->getLocGatewayFactory()->getEntity();
-        if (isset($entity)) {
-            $this->feature = new Feature\RowGatewayFeature($entity);
+        $table = $this->getLocGatewayFactory()->getTableGatewayTarget();
+        if (isset($table)) {
+            $table = new $table();
+            if (property_exists($table, 'primaryKey')) {
+                $key = $table->primaryKey;
+            } elseif (method_exists($table, 'getPrimaryKey') && $table->getPrimaryKey() !== null) {
+                $key = $table->getPrimaryKey();
+            }
+        }
+
+        if (isset($key)) {
+            $this->feature = new Feature\RowGatewayFeature($key);
         } else {
             $this->feature = new Feature\RowGatewayFeature();
         }

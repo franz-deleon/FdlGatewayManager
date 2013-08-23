@@ -32,9 +32,9 @@ class GatewayWorker implements WorkerInterface, ServiceManager\ServiceLocatorAwa
     protected $tableName;
 
     /**
-     * @var TableGateway
+     * @var string
      */
-    protected $tableGateway;
+    protected $tableGatewayName;
 
     /**
      * @var ServiceManager\ServiceLocatorInterface
@@ -148,6 +148,24 @@ class GatewayWorker implements WorkerInterface, ServiceManager\ServiceLocatorAwa
     public function setTableName($table)
     {
         $this->tableName = $table;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTableGatewayName()
+    {
+        return $this->tableGatewayName;
+    }
+
+    /**
+     * @param string $tableGatewayName
+     */
+    public function setTableGatewayName($tableGatewayName)
+    {
+        $this->tableGatewayName = $tableGatewayName;
+        return $this;
     }
 
     /**

@@ -64,7 +64,7 @@ class Manager extends AbstractManager
      * @param string $index
      * @throws Exception\ErrorException
      */
-    public function saveGateway(TableGateway\AbstractTableGateway $tableGateway, $index)
+    public function saveGateway($tableGateway, $index)
     {
         if (!isset(self::$tableGateways[$index])) {
             self::$tableGateways[$index] = $tableGateway;

@@ -24,10 +24,6 @@ class Module
         );
     }
 
-    public function init() {
-
-    }
-
     public function getServiceConfig()
     {
         return array(
@@ -36,27 +32,31 @@ class Module
                 'LocGatewayWorker'   => __NAMESPACE__ . '\GatewayWorker',
             ),
             'factories' => array(
-                'LocGatewayFactory' =>  function ($sm) {
+                'LocGatewayFactory' => function ($sm) {
                     return new GatewayFactory();
                 },
                 'LocGatewayTableGateway' => function ($sm) {
-                    $config = $sm->get('config');
-                    if (!empty($config['loc_gateway_manager_assets']['gateway'])) {
-                        $gatewayName = $config['loc_gateway_manager_assets']['gateway'];
-                        if (!empty($config['loc_gateway_manager_gateways'][$gatewayName])) {
-                            $gateway = $config['loc_gateway_manager_gateways'][$gatewayName];
-                        }
-                    } else {
-                        $gateway = $config['loc_gateway_manager_gateways']['default'];
-                    }
-
                     $gwfactory = $sm->get('LocGatewayFactory');
-                    return new $gateway(
+
+                    // initialize a gateway
+                    $gateway = $gwfactory->getConfigGatewayName();
+                    $gateway = new $gateway(
                         $gwfactory->getTable(),
                         $gwfactory->getAdapter(),
                         $gwfactory->getFeature(),
                         $gwfactory->getResultSet()
                     );
+
+                    // inject to the abstract table if any
+                    $tableTarget = $gwfactory->getTableGatewayTarget();
+                    if (isset($tableTarget)) {
+                        $tableTarget = new $tableTarget();
+                        if ($tableTarget instanceof Gateway\AbstractTable) {
+                            $gateway = $tableTarget->setTableGateway($gateway);
+                        }
+                    }
+
+                    return $gateway;
                 }
             ),
             'shared' => array(

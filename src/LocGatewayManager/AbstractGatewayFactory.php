@@ -13,9 +13,34 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
     const CONFIG_LOC_DB = 'loc_gateway_manager_assets';
 
     /**
+     * @var string
+     */
+    protected $adapterKey;
+
+    /**
      * @var ServiceManager\ServiceManager
      */
     protected $serviceLocator;
+
+    /**
+     * Get the adapter key
+     * @return string
+     */
+    public function getAdapterKey()
+    {
+        return $this->adapterKey;
+    }
+
+    /**
+     * Se the adapter key
+     * @param string $key
+     * @return \LocGatewayManager\AbstractGatewayFactory
+     */
+    public function setAdapterKey($key)
+    {
+        $this->adapterKey = $key;
+        return $this;
+    }
 
     /**
      * Retrieve the db adapter
@@ -40,6 +65,7 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
             throw new Exception\InvalidArgumentException('Adapter config is not found.');
         }
 
+        $adapterKeyName = $adapterKeyName ?: $this->getAdapterKey();
         if (!empty($adapterKeyName)) {
             if (is_array($db[$adapterKeyName])) {
                 $db = $db[$adapterKeyName];
@@ -66,19 +92,15 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
      * @throws \ErrorException
      * @return Object
      */
-    public function initEntity($entityName, Adapter $adapter)
+    public function initEntity($entityName)
     {
         // if fqns return it
         if (class_exists($entityName)) {
             $class = $entityName;
         } else {
-            $config = $this->getServiceLocator()->get('config');
-            $class = $config[self::CONFIG_LOC_DB]['entities'] . "\\" .  $entityName;
-            if (!class_exists($class)) {
-                $class = $class . 'Entity';
-                if (!class_exists($class)) {
-                    throw new Exception\ClassNotExistException('Entity ' . $class . ' does not exist.');
-                }
+            $class = $this->getFQNSClass($entityName, 'entity');
+            if (null === $class) {
+                throw new Exception\ClassNotExistException('Entity ' . $className . ' does not exist.');
             }
         }
 
@@ -131,45 +153,128 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
 
     /**
      * @param string $tableName
-     * @param string $entity
+     * @param string $fallback
      * @param Zend\Db\Adapter\Adapter
      * @throws Exception\ClassNotExistException
      * @return string
      */
-    public function initTable($tableName = null, $entity = null, Adapter $adapter = null)
+    public function initTable($tableName = null, $fallback = null, Adapter $adapter = null)
     {
-        if (isset($tableName)) {
-            $config = $this->getServiceLocator()->get('config');
-            $class = $config[self::CONFIG_LOC_DB]['tables'] . "\\" .  $tableName;
+        if (class_exists($tableName)) {
+            $class = $tableName;
+        } else {
+            $class = $this->getFQNSClass($tableName, 'table');
+        }
 
-            if (!class_exists($class)) {
-                $class = $class . 'Table';
-                if (!class_exists($class)) {
-                    $class = null;
-                }
-            }
-
-            // if no class then use the default entity classname
-            if ($class !== null) {
-                $table = new $class();
-                if ($table instanceof Gateway\TableInterface) {
-                    return $table->getTableName();
-                } elseif (!empty($table->tableName)) {
-                    return $this->tableName;
-                }
-            }
-        } elseif (is_object($entity)) {
-            // check first if there is a $tableName property in entity obj
-            if (property_exists($entity, 'tableName')) {
-                return $entity->tableName;
+        if ($class !== null) {
+            $table = new $class();
+            if ($table instanceof Gateway\TableInterface && $table->getTableName() !== null) {
+                return $table->getTableName();
+            } elseif (!empty($table->tableName)) {
+                return $this->tableName;
             } else {
-                return $this->normalizeTablename(get_class($entity), $adapter);
+                $class = $this->extractClassnameFromNamespace($class);
+                return $this->normalizeTablename($class, $adapter);
             }
-        } elseif (is_string($tableName)) {
-            return $tableName;
+        }
+
+        if (is_object($fallback)) {
+            // check first on a table class. do a loop back
+            $class = $this->initTableGatewayTarget(null, $fallback);
+            $class = $this->initTable($class, null, $adapter);
+
+            if (isset($class)) {
+                return $class;
+            } else {
+                // lastly check on the entity object if a tableName is declared
+                if (property_exists($fallback, 'tableName')) {
+                    return $fallback->tableName;
+                } else {
+                    $fallback = $this->extractClassnameFromNamespace($fallback);
+                    return $this->normalizeTablename($fallback, $adapter);
+                }
+            }
         }
 
         throw new Exception\InvalidArgumentException('Cannot identify tablename.');
+    }
+
+    /**
+     * Create the table gateway class to use
+     * @param string $tableGatewayName
+     * @param object $fallback
+     * @return string
+     */
+    public function initTableGatewayTarget($tableGatewayName = null, $fallback = null)
+    {
+        $classString = $this->getFQNSClass($tableGatewayName, 'table');
+        if (!isset($classString) && isset($fallback)) {
+            $fallback = $this->extractClassnameFromNamespace($fallback);
+            $classString = $this->getFQNSClass($fallback, 'table');
+        }
+        return $classString;
+    }
+
+    /**
+     * @return string Gateway name from config
+     */
+    public function getConfigGatewayName()
+    {
+        $config = $this->getServiceLocator()->get('config');
+        if (!empty($config[self::CONFIG_LOC_DB]['gateway'])) {
+            $gatewayName = $config[self::CONFIG_LOC_DB]['gateway'];
+            if (!empty($config['loc_gateway_manager_gateways'][$gatewayName])) {
+                $gateway = $config['loc_gateway_manager_gateways'][$gatewayName];
+            }
+        } else {
+            $gateway = $config['loc_gateway_manager_gateways']['default'];
+        }
+        return $gateway;
+    }
+
+    /**
+     * Retrieve the fully qualified class namespace
+     * @param string $className
+     * @param string $type
+     * @return string|null
+     */
+    protected function getFQNSClass($className, $type)
+    {
+        $typeMapping = array(
+            'table' => 'tables',
+            'entity' => 'entities',
+        );
+
+        $class = null;
+        if (array_key_exists($type, $typeMapping)) {
+            $config = $this->getServiceLocator()->get('config');
+            $config = $config[self::CONFIG_LOC_DB];
+
+            $adapterKey = $this->getAdapterKey() ?: 'default';
+            foreach ($config as $settingKey => $settings) {
+                if (is_array($settings)) {
+                    if ($settingKey == $adapterKey) {
+                        $settingType = $typeMapping[$type];
+                        $class = "{$settings[$settingType]}\\{$className}";
+                    }
+                } else {
+                    if ($settingKey == $typeMapping[$type]) {
+                        $class = "{$settings}\\{$className}";
+                    }
+                }
+            }
+
+            if (isset($class)) {
+                if (!class_exists($class)) {
+                    $class = $class . ucfirst($type);
+                    if (!class_exists($class)) {
+                        $class = null;
+                    }
+                }
+            }
+        }
+
+        return $class;
     }
 
     /**
@@ -198,6 +303,23 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
         }
 
         return $tablename;
+    }
+
+    /**
+     * @param string|object $namespace
+     * @return mixed
+     */
+    protected function extractClassnameFromNamespace($namespace)
+    {
+        if (is_object($namespace)) {
+            $namespace = get_class($namespace);
+        }
+
+        if (is_string($namespace)) {
+            $namespace = explode("\\", $namespace);
+            $namespace = array_pop($namespace);
+            return $namespace;
+        }
     }
 
     /**

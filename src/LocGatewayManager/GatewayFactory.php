@@ -37,6 +37,11 @@ class GatewayFactory extends AbstractGatewayFactory
     protected $tableGateway;
 
     /**
+     * @var string
+     */
+    protected $tableGatewayTarget;
+
+    /**
      * @var \LocGatewayManager\GatewayWorker
      */
     protected $gatewayWorker;
@@ -55,16 +60,21 @@ class GatewayFactory extends AbstractGatewayFactory
             $resultSetName  = $worker->getResultSetName();
             $featureName    = $worker->getFeatureName();
             $tableName      = $worker->getTableName();
+            $tableGatewayName = $worker->getTableGatewayName();
 
+            $this->setAdapterKey($adapterKeyName);
             $adapter = $this->initAdapter($adapterKeyName);
             $entity  = $this->initEntity($entityName, $adapter);
             $table   = $this->initTable($tableName, $entity, $adapter);
+            $tableGatewayTarget = $this->initTableGatewayTarget($tableGatewayName, $entity);
+
             $feature   = $this->initFeature($featureName);
             $resultSet = $this->initResultSet($resultSetName);
 
             $this->setAdapter($adapter);
             $this->setEntity($entity);
             $this->setTable($table);
+            $this->setTableGatewayTarget($tableGatewayTarget);
 
             // initialize feature
             if (isset($feature)) {
@@ -104,10 +114,31 @@ class GatewayFactory extends AbstractGatewayFactory
      * @param Db\TableGateway\AbstractTableGateway $tableGateway
      * @return \LocGatewayManager\GatewayFactory
      */
-    public function setTableGateway(Db\TableGateway\AbstractTableGateway $tableGateway)
+    public function setTableGateway($tableGateway)
     {
+        if (!$tableGateway instanceof Db\TableGateway\AbstractTableGateway
+            && !$tableGateway instanceof Gateway\AbstractTable
+        ) {
+            throw new Exception\InvalidArgumentException('Class needs to be an instance of Gateway\AbstractTable');
+        }
         $this->tableGateway = $tableGateway;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTableGatewayTarget()
+    {
+        return $this->tableGatewayTarget;
+    }
+
+    /**
+     * @param string $tableGatewayString
+     */
+    public function setTableGatewayTarget($tableGatewayTarget)
+    {
+        $this->tableGatewayTarget = $tableGatewayTarget;
     }
 
     /**
@@ -172,8 +203,8 @@ class GatewayFactory extends AbstractGatewayFactory
     }
 
     /**
-     * @param unknown $feature
-     * @return Db\TableGateway\Feature\AbstractFeature
+     * @param Db\TableGateway\Feature\AbstractFeature $feature
+     * @return \LocGatewayManager\GatewayFactory
      */
     public function setFeature(Db\TableGateway\Feature\AbstractFeature $feature)
     {
