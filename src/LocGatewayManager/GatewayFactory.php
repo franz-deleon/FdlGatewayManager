@@ -3,7 +3,7 @@ namespace LocGatewayManager;
 
 use Zend\Db;
 
-class GatewayFactory extends AbstractGatewayFactory
+class GatewayFactory
 {
     /**
      * @var \Zend\Db\Adapter\Adapter
@@ -47,6 +47,17 @@ class GatewayFactory extends AbstractGatewayFactory
     protected $gatewayWorker;
 
     /**
+     * @var \LocGatewayManager\GatewayFactoryProcessor
+     */
+    protected $factoryProcessor;
+
+
+    public function __construct(GatewayFactoryProcessor $processor)
+    {
+        $this->factoryProcessor = $processor;
+    }
+
+    /**
      * Run the factory
      * @param void
      * @return null
@@ -54,6 +65,8 @@ class GatewayFactory extends AbstractGatewayFactory
     public function run()
     {
         $worker = $this->getWorker();
+        $processor = $this->factoryProcessor;
+
         if (isset($worker) && $worker instanceof GatewayWorker) {
             $adapterKeyName = $worker->getAdapterKeyName();
             $entityName     = $worker->getEntityName();
@@ -62,14 +75,15 @@ class GatewayFactory extends AbstractGatewayFactory
             $tableName      = $worker->getTableName();
             $tableGatewayName = $worker->getTableGatewayName();
 
-            $this->setAdapterKey($adapterKeyName);
-            $adapter = $this->initAdapter($adapterKeyName);
-            $entity  = $this->initEntity($entityName, $adapter);
-            $table   = $this->initTable($tableName, $entity, $adapter);
-            $tableGatewayTarget = $this->initTableGatewayTarget($tableGatewayName, $entity);
+            $processor->setAdapterKey($adapterKeyName);
+            $adapter = $processor->initAdapter($adapterKeyName);
+            $entity  = $processor->initEntity($entityName, $adapter);
 
-            $feature   = $this->initFeature($featureName);
-            $resultSet = $this->initResultSet($resultSetName);
+            $table   = $processor->getTable($tableName, $entity, $adapter);
+            $tableGatewayTarget = $processor->getTableGatewayTarget($tableGatewayName, $entity);
+
+            $feature   = $processor->initFeature($featureName);
+            $resultSet = $processor->initResultSet($resultSetName);
 
             $this->setAdapter($adapter);
             $this->setEntity($entity);
@@ -139,6 +153,7 @@ class GatewayFactory extends AbstractGatewayFactory
     public function setTableGatewayTarget($tableGatewayTarget)
     {
         $this->tableGatewayTarget = $tableGatewayTarget;
+        return $this;
     }
 
     /**
@@ -150,6 +165,10 @@ class GatewayFactory extends AbstractGatewayFactory
         return $this->gatewayWorker;
     }
 
+    /**
+     * @param GatewayWorker $worker
+     * @return \LocGatewayManager\GatewayFactory
+     */
     public function setWorker(GatewayWorker $worker = null)
     {
         $this->gatewayWorker = $worker;

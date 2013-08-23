@@ -101,52 +101,46 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
                             ->getMock();
 
         // factory mock
-        $gatewayFactoryMock = $this->GatewayFactory
-                                   ->setMethods(array('initAdapter', 'initEntity', 'initTable', 'initTableGatewayTarget', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet'))
+        $factoryProcessor = $this->getMockBuilder('LocGatewayManager\GatewayFactoryProcessor')
+                                   ->setMethods(array('initAdapter', 'initEntity', 'getTable', 'getTableGatewayTarget', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet'))
                                    ->getMock();
-        $gatewayFactoryMock->expects($this->once())
+        $factoryProcessor->expects($this->once())
                            ->method('initAdapter')
                            ->will($this->returnValue($zendAdapter));
-        $gatewayFactoryMock->expects($this->once())
+        $factoryProcessor->expects($this->once())
                            ->method('initEntity')
                            ->with($this->equalTo('entityname'), $this->containsOnlyInstancesOf('\Zend\Db\Adapter\Adapter'))
                            ->will($this->returnSelf());
-//         $gatewayFactoryMock->expects($this->once())
-//                            ->method('initTable')
-//                            ->will($this->returnSelf());
-//         $gatewayFactoryMock->expects($this->once())
-//                            ->method('initTableGatewayTarget')
-//                            ->will($this->returnSelf());
-        $gatewayFactoryMock->expects($this->once())
+        $factoryProcessor->expects($this->once())
                            ->method('initFeature')
                            ->will($this->returnValue($featureStub));
-        $gatewayFactoryMock->expects($this->once())
+        $factoryProcessor->expects($this->once())
                            ->method('initResultSet')
                            ->will($this->returnValue($resultSetStub));
-//         $gatewayFactoryMock->expects($this->once())
-//                            ->method('setFeature')
-//                            ->will($this->returnSelf());
-//         $gatewayFactoryMock->expects($this->once())
-//                            ->method('setResultSet')
-//                            ->will($this->returnSelf());
 
+        $gatewayFactoryMock = $this->GatewayFactory->setMethods(null)->getMock();
+        $gatewayFactoryMock->__construct($factoryProcessor);
         $gatewayFactoryMock->setWorker($workerMock);
         $gatewayFactoryMock->run();
 
-        // test with feature and result return origin objects
-        $gatewayFactoryMock2 = $this->GatewayFactory
-                                    ->setMethods(array('initAdapter', 'initEntity', 'initTable', 'initTableGatewayTarget', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet'))
-                                    ->getMock();
-        $gatewayFactoryMock2->expects($this->once())
-                            ->method('initAdapter')
-                            ->will($this->returnValue($zendAdapter));
-        $gatewayFactoryMock2->expects($this->once())
-                            ->method('initFeature')
-                            ->will($this->returnValue($zendFeature));
-        $gatewayFactoryMock2->expects($this->once())
-                            ->method('initResultSet')
-                            ->will($this->returnValue($zendResultSet));
+        /**************** test with feature and result return origin objects ****************/
+        $factoryProcessor2 = $this->getMockBuilder('LocGatewayManager\GatewayFactoryProcessor')
+                                  ->setMethods(array('initAdapter', 'initEntity', 'getTable', 'getTableGatewayTarget', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet', 'setAdapterKey'))
+                                  ->getMock();
+        $factoryProcessor2->expects($this->once())
+                          ->method('initAdapter')
+                          ->will($this->returnValue($zendAdapter));
+        $factoryProcessor2->expects($this->once())
+                          ->method('initFeature')
+                          ->will($this->returnValue($zendFeature));
+        $factoryProcessor2->expects($this->once())
+                          ->method('initResultSet')
+                          ->will($this->returnValue($zendResultSet));
+        $factoryProcessor2->expects($this->once())
+                          ->method('setAdapterKey')
+                          ->will($this->returnSelf());
 
+        $gatewayFactoryMock2 = new LocGatewayManager\GatewayFactory($factoryProcessor2);
         $gatewayFactoryMock2->setWorker($workerMock);
         $gatewayFactoryMock2->run();
     }
@@ -310,6 +304,26 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
         $tableGateway->setTable('zzTABLEzz');
 
         $this->assertEquals('zzTABLEzz', $tableGateway->getTable());
+    }
+
+    /**
+     * @group TableGatewayTarget
+     */
+    public function testGetTableGatewayTarget()
+    {
+        $tableGateway = $this->GatewayFactory->setMethods(null)->getMock();
+        $tableGateway->setTableGatewayTarget('xzzTABLEzzx');
+
+        $this->assertEquals('xzzTABLEzzx', $tableGateway->getTableGatewayTarget());
+    }
+
+    /**
+     * @group TableGatewayTarget
+     */
+    public function testsetTableGatewayTarget()
+    {
+        $tableGateway = $this->GatewayFactory->setMethods(null)->getMock();
+        $this->assertNotNull('zzTABLEzz', $tableGateway->setTableGatewayTarget('xx'));
     }
 
     /**

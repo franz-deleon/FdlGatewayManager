@@ -30,16 +30,18 @@ class Module
             'invokables' => array(
                 'LocGatewayManager'  => __NAMESPACE__ . '\Manager',
                 'LocGatewayWorker'   => __NAMESPACE__ . '\GatewayWorker',
+                'LocGatewayFactoryProcessor' => __NAMESPACE__ . '\GatewayFactoryProcessor',
             ),
             'factories' => array(
                 'LocGatewayFactory' => function ($sm) {
-                    return new GatewayFactory();
+                    return new GatewayFactory($sm->get('LocGatewayFactoryProcessor'));
                 },
                 'LocGatewayTableGateway' => function ($sm) {
                     $gwfactory = $sm->get('LocGatewayFactory');
+                    $processor = $sm->get('LocGatewayFactoryProcessor');
 
                     // initialize a gateway
-                    $gateway = $gwfactory->getConfigGatewayName();
+                    $gateway = $processor->getConfigGatewayName();
                     $gateway = new $gateway(
                         $gwfactory->getTable(),
                         $gwfactory->getAdapter(),

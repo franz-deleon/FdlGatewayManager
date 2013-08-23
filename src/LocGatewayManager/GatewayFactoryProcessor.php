@@ -5,7 +5,7 @@ use Zend\ServiceManager;
 use Zend\Filter\Word;
 use Zend\Db\Adapter\Adapter;
 
-abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAwareInterface
+class GatewayFactoryProcessor implements ServiceManager\ServiceLocatorAwareInterface
 {
     /**
      * @var string Name to look for in configurations
@@ -158,7 +158,7 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
      * @throws Exception\ClassNotExistException
      * @return string
      */
-    public function initTable($tableName = null, $fallback = null, Adapter $adapter = null)
+    public function getTable($tableName = null, $fallback = null, Adapter $adapter = null)
     {
         if (class_exists($tableName)) {
             $class = $tableName;
@@ -180,8 +180,8 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
 
         if (is_object($fallback)) {
             // check first on a table class. do a loop back
-            $class = $this->initTableGatewayTarget(null, $fallback);
-            $class = $this->initTable($class, null, $adapter);
+            $class = $this->getTableGatewayTarget(null, $fallback);
+            $class = $this->getTable($class, null, $adapter);
 
             if (isset($class)) {
                 return $class;
@@ -205,7 +205,7 @@ abstract class AbstractGatewayFactory implements ServiceManager\ServiceLocatorAw
      * @param object $fallback
      * @return string
      */
-    public function initTableGatewayTarget($tableGatewayName = null, $fallback = null)
+    public function getTableGatewayTarget($tableGatewayName = null, $fallback = null)
     {
         $classString = $this->getFQNSClass($tableGatewayName, 'table');
         if (!isset($classString) && isset($fallback)) {
