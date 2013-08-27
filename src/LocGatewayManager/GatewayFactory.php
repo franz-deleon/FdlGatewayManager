@@ -52,7 +52,7 @@ class GatewayFactory
     protected $factoryProcessor;
 
 
-    public function __construct(GatewayFactoryProcessor $processor)
+    public function __construct(GatewayFactoryUtilities $processor)
     {
         $this->factoryProcessor = $processor;
     }

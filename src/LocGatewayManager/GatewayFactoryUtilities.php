@@ -5,7 +5,7 @@ use Zend\ServiceManager;
 use Zend\Filter\Word;
 use Zend\Db\Adapter\Adapter;
 
-class GatewayFactoryProcessor implements ServiceManager\ServiceLocatorAwareInterface
+class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInterface
 {
     /**
      * @var string Name to look for in configurations
@@ -100,7 +100,7 @@ class GatewayFactoryProcessor implements ServiceManager\ServiceLocatorAwareInter
         } else {
             $class = $this->getFQNSClass($entityName, 'entity');
             if (null === $class) {
-                throw new Exception\ClassNotExistException('Entity ' . $className . ' does not exist.');
+                throw new Exception\ClassNotExistException('Entity ' . $entityName . ' does not exist.');
             }
         }
 
