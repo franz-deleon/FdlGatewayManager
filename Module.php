@@ -65,6 +65,13 @@ class Module
                 'LocGatewayWorker' => false,
                 'LocGatewayTableGateway' => false,
             ),
+            'initializers' => array(
+                function ($instance, $sm) {
+                    if ($instance instanceof LocGatewayManagerAwareInterface) {
+                        $instance->setLocGatewayManager($sm->get('LocGatewayManager'));
+                    }
+                },
+            ),
         );
     }
 }

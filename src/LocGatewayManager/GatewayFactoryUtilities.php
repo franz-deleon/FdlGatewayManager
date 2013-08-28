@@ -238,7 +238,7 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
      * @param string $type
      * @return string|null
      */
-    protected function getFQNSClass($className, $type)
+    public function getFQNSClass($className, $type)
     {
         $typeMapping = array(
             'table' => 'tables',
@@ -251,15 +251,17 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
             $config = $config[self::CONFIG_LOC_DB];
 
             $adapterKey = $this->getAdapterKey() ?: 'default';
-            foreach ($config as $settingKey => $settings) {
-                if (is_array($settings)) {
-                    if ($settingKey == $adapterKey) {
-                        $settingType = $typeMapping[$type];
-                        $class = "{$settings[$settingType]}\\{$className}";
+            foreach ($config as $key => $val) {
+                if (is_array($val)) {
+                    if ($key == $adapterKey) {
+                        $settingKey = $typeMapping[$type];
+                        $class = "{$val[$settingKey]}\\{$className}";
+                        break;
                     }
                 } else {
-                    if ($settingKey == $typeMapping[$type]) {
-                        $class = "{$settings}\\{$className}";
+                    if ($key == $typeMapping[$type]) {
+                        $class = "{$val}\\{$className}";
+                        break;
                     }
                 }
             }

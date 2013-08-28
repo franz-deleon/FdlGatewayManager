@@ -27,34 +27,38 @@ class Manager extends AbstractManager
      */
     public function factory(array $params, $index)
     {
-        $worker  = $this->getGatewayWorker();
+        if (!$this->gatewayExist($index)) {
+            $worker  = $this->getGatewayWorker();
 
-        if (isset($params['adapter_key_name'])) {
-            $worker->setAdapterKeyName($params['adapter_key_name']);
-        }
-        if (isset($params['table_name'])) {
-            $worker->setTableName($params['table_name']);
-        }
-        if (isset($params['entity_name'])) {
-            $worker->setEntityName($params['entity_name']);
-        }
-        if (isset($params['feature_name'])) {
-            $worker->setFeatureName($params['feature_name']);
-        }
-        if (isset($params['result_set_name'])) {
-            $worker->setResultSetName($params['result_set_name']);
-        }
+            if (isset($params['adapter_key_name'])) {
+                $worker->setAdapterKeyName($params['adapter_key_name']);
+            }
+            if (isset($params['table_name'])) {
+                $worker->setTableName($params['table_name']);
+            }
+            if (isset($params['entity_name'])) {
+                $worker->setEntityName($params['entity_name']);
+            }
+            if (isset($params['feature_name'])) {
+                $worker->setFeatureName($params['feature_name']);
+            }
+            if (isset($params['result_set_name'])) {
+                $worker->setResultSetName($params['result_set_name']);
+            }
 
-        // is a Service Manager factory which injects the worker
-        $factory = $this->getGatewayFactory();
-        $factory->setWorker($worker)
-                ->run();
+            // is a Service Manager factory which injects the worker
+            $factory = $this->getGatewayFactory();
+            $factory->setWorker($worker)
+                    ->run();
 
-        $tableGateway = $factory->getTableGateway();
-        $this->saveGateway($tableGateway, $index);
+            $tableGateway = $factory->getTableGateway();
+            $this->saveGateway($tableGateway, $index);
 
-        //reset the factory
-        $factory->reset();
+            //reset the factory
+            $factory->reset();
+        } else {
+            $tableGateway = $this->get($index);
+        }
 
         return $tableGateway;
     }
