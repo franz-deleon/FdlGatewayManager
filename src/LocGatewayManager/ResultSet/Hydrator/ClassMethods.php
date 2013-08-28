@@ -10,6 +10,7 @@ class ClassMethods extends Hydrator\ClassMethods
      *
      * Hydrates an object by getter/setter methods of the object.
      *
+     * @deprecated This is updated in main Zend
      * @param  array                            $data
      * @param  object                           $object
      * @return object
