@@ -59,7 +59,7 @@ class Module
                     }
 
                     return $gateway;
-                }
+                },
             ),
             'shared' => array(
                 'LocGatewayWorker' => false,
