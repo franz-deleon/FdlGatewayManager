@@ -270,7 +270,7 @@ class GatewayFactory
     public function reset()
     {
         $properties = get_object_vars($this);
-        while(list($key) = each($properties)) {
+        while (list($key) = each($properties)) {
             if ($key != 'serviceLocator') {
                 $this->{$key} = null;
             }

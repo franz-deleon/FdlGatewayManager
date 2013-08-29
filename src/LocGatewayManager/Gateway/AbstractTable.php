@@ -40,7 +40,7 @@ abstract class AbstractTable implements TableInterface
     {
         $tableGateway = $this->getTableGateway();
         if (isset($tableGateway)) {
-            if (method_exists($tableGateway, $name)) {
+            if (is_callable(array($tableGateway, $name))) {
                 return call_user_func_array(array($tableGateway, $name), $args);
             }
         }

@@ -16,7 +16,7 @@ class RowGatewayFeature extends AbstractFeature
             $table = new $table();
             if (property_exists($table, 'primaryKey')) {
                 $key = $table->primaryKey;
-            } elseif (method_exists($table, 'getPrimaryKey') && $table->getPrimaryKey() !== null) {
+            } elseif (is_callable(array($table, 'getPrimaryKey')) && $table->getPrimaryKey() !== null) {
                 $key = $table->getPrimaryKey();
             }
         }

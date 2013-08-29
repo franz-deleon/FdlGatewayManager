@@ -1,9 +1,9 @@
 <?php
 namespace LocGatewayManager;
 
-use Zend\ServiceManager;
-use Zend\Filter\Word;
 use Zend\Db\Adapter\Adapter;
+use Zend\Filter\Word;
+use Zend\ServiceManager;
 
 class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInterface
 {
@@ -21,26 +21,6 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
      * @var ServiceManager\ServiceManager
      */
     protected $serviceLocator;
-
-    /**
-     * Get the adapter key
-     * @return string
-     */
-    public function getAdapterKey()
-    {
-        return $this->adapterKey;
-    }
-
-    /**
-     * Se the adapter key
-     * @param string $key
-     * @return \LocGatewayManager\AbstractGatewayFactory
-     */
-    public function setAdapterKey($key)
-    {
-        $this->adapterKey = $key;
-        return $this;
-    }
 
     /**
      * Retrieve the db adapter
@@ -149,6 +129,26 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
             }
             return new $class();
         }
+    }
+
+    /**
+     * Get the adapter key
+     * @return string
+     */
+    public function getAdapterKey()
+    {
+        return $this->adapterKey;
+    }
+
+    /**
+     * Se the adapter key
+     * @param string $key
+     * @return \LocGatewayManager\AbstractGatewayFactory
+     */
+    public function setAdapterKey($key)
+    {
+        $this->adapterKey = $key;
+        return $this;
     }
 
     /**
