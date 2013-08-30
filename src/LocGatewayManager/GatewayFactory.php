@@ -49,12 +49,12 @@ class GatewayFactory
     /**
      * @var \LocGatewayManager\GatewayFactoryProcessor
      */
-    protected $factoryProcessor;
+    protected $factoryUtilities;
 
 
-    public function __construct(GatewayFactoryUtilities $processor)
+    public function __construct(GatewayFactoryUtilities $utilities)
     {
-        $this->factoryProcessor = $processor;
+        $this->factoryUtilities = $utilities;
     }
 
     /**
@@ -65,7 +65,7 @@ class GatewayFactory
     public function run()
     {
         $worker = $this->getWorker();
-        $processor = $this->factoryProcessor;
+        $processor = $this->factoryUtilities;
 
         if (isset($worker) && $worker instanceof GatewayWorker) {
             $adapterKeyName = $worker->getAdapterKeyName();
@@ -271,7 +271,7 @@ class GatewayFactory
     {
         $properties = get_object_vars($this);
         while (list($key) = each($properties)) {
-            if ($key != 'serviceLocator') {
+            if ($key != 'serviceLocator' && $key != 'factoryUtilities') {
                 $this->{$key} = null;
             }
         }
