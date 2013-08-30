@@ -157,12 +157,20 @@ abstract class AbstractTable implements TableInterface
      *     $username,
      *     'AND'
      * ))
+     *
+     * @param mixed $columns
      * @param array $where
+     * @return Ambigous <NULL, \Zend\Db\ResultSet\ResultSetInterface, \Zend\Db\ResultSet\ResultSet>
      */
-    public function getWhere(array $where)
+    public function getWhere($columns, array $where = array())
     {
         $table  = $this->getTableGateway();
         $select = $table->getSql()->select();
+
+        if (!empty($columns)) {
+            $columns = !is_array($columns) ? array($columns) : $columns;
+            $select->columns($columns);
+        }
 
         if (count($where) > 0 && !is_array($where[0])) {
             $where = array($where);
@@ -174,9 +182,9 @@ abstract class AbstractTable implements TableInterface
             $predicate = isset($values[2]) ? $values[2] : \Zend\Db\Sql\Predicate\Predicate::OP_AND;
             $select->where(array($clause => $value), $predicate);
         }
+        //$selectString = @$table->getSql()->getSqlStringForSqlObject($select);var_dump($selectString);die;
 
         $result = $table->selectWith($select);
-        $selectString = @$table->getSql()->getSqlStringForSqlObject($select);
         return $result;
     }
 }
