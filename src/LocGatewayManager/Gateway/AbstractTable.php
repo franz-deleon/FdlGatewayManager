@@ -176,7 +176,7 @@ abstract class AbstractTable implements TableInterface
         }
 
         $result = $table->selectWith($select);
-        $selectString = @$table->getSql()->getSqlStringForSqlObject($select);
+        //$selectString = @$table->getSql()->getSqlStringForSqlObject($select);
         return $result;
     }
 }

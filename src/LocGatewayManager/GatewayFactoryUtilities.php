@@ -63,7 +63,17 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
             }
         }
 
-        return new Adapter($db);
+        // look for platform
+        $platform = null;
+        if (array_key_exists('platform', $db)) {
+            $platform = $db['platform'];
+            if (is_string($platform)) {
+                $platform = new $platform();
+            }
+            unset($db['platform']);
+        }
+
+        return new Adapter($db, $platform);
     }
 
     /**
