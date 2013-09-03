@@ -139,10 +139,10 @@ abstract class AbstractTable implements TableInterface
 
     /**
      * You want to...
-     * SELECT * FROM TABLE WHERE USERNAME = SOMEVALUE
+     * SELECT USERNAME FROM TABLE WHERE USERNAME = SOMEVALUE
      *
      * USAGE:
-     * $this->getWhere(array(
+     * $this->getWhere(array('USERNAME'), array(
      *     array(
      *         'clause'    => 'USERNAME = ?',
      *         'value'     => $username,
@@ -152,7 +152,7 @@ abstract class AbstractTable implements TableInterface
      *
      * OR passing one:
      *
-     * $this->getWhere(array(
+     * $this->getWhere('USERNAME', array(
      *     'USERNAME = ?',
      *     $username,
      *     'AND'

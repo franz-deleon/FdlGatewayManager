@@ -205,8 +205,6 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
                 }
             }
         }
-
-        throw new Exception\InvalidArgumentException('Cannot identify tablename.');
     }
 
     /**
