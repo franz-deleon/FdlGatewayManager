@@ -119,6 +119,24 @@ abstract class AbstractTable implements TableInterface
     }
 
     /**
+     * Retrieve a row by primary key
+     * @param integer $id
+     * @return Ambigous <NULL, \Zend\Db\ResultSet\ResultSetInterface, \Zend\Db\ResultSet\ResultSet>
+     */
+    public function getByPrimaryKey($id)
+    {
+        $primaryKey = $this->getPrimaryKey();
+        if (null !== $primaryKey) {
+            $table  = $this->getTableGateway();
+            $select = $table->getSql()->select();
+            $select->where(array("{$primaryKey} = ?" => $id));
+
+            $result = $table->selectWith($select);
+            return $result;
+        }
+    }
+
+    /**
      * Fetch all database rows
      * @param string $order
      * @return Iteratable
