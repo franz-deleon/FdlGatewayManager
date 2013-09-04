@@ -200,7 +200,7 @@ abstract class AbstractTable implements TableInterface
             $predicate = isset($values[2]) ? $values[2] : \Zend\Db\Sql\Predicate\Predicate::OP_AND;
             $select->where(array($clause => $value), $predicate);
         }
-        //$selectString = @$table->getSql()->getSqlStringForSqlObject($select);var_dump($selectString);die;
+        $selectString = @$table->getSql()->getSqlStringForSqlObject($select);//var_dump($selectString);die;
 
         $result = $table->selectWith($select);
         return $result;
