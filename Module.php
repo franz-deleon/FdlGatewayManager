@@ -50,7 +50,7 @@ class Module
                     );
 
                     // inject to the abstract table if any
-                    $tableTarget = $gwfactory->getTableGatewayTarget();
+                    $tableTarget = $gwfactory->getTableGatewayProxy();
                     if (isset($tableTarget)) {
                         $tableTarget = new $tableTarget();
                         if ($tableTarget instanceof Gateway\AbstractTable) {

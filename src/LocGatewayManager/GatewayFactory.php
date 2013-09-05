@@ -150,9 +150,9 @@ class GatewayFactory
     /**
      * @param string $tableGatewayString
      */
-    public function setTableGatewayProxy($tableGatewayTarget)
+    public function setTableGatewayProxy($tableGatewayProxy)
     {
-        $this->tableGatewayProxy = $tableGatewayTarget;
+        $this->tableGatewayProxy = $tableGatewayProxy;
         return $this;
     }
 

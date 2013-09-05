@@ -190,7 +190,7 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
 
         if (is_object($fallback)) {
             // check first on a table class. do a loop back
-            $class = $this->getTableGatewayTarget(null, $fallback);
+            $class = $this->getTableGatewayProxy(null, $fallback);
             $class = $this->getTable($class, null, $adapter);
 
             if (isset($class)) {
@@ -213,7 +213,7 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
      * @param object $fallback
      * @return string
      */
-    public function getTableGatewayTarget($tableGatewayName = null, $fallback = null)
+    public function getTableGatewayProxy($tableGatewayName = null, $fallback = null)
     {
         $classString = $this->getFQNSClass($tableGatewayName, 'table');
         if (!isset($classString) && isset($fallback)) {
