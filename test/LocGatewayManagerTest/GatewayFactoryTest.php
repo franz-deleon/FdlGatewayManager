@@ -102,7 +102,7 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
         // factory mock
         $factoryUtilities = $this->getMockBuilder('LocGatewayManager\GatewayFactoryUtilities')
-                                   ->setMethods(array('initAdapter', 'initEntity', 'getTable', 'getTableGatewayTarget', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet'))
+                                   ->setMethods(array('initAdapter', 'initEntity', 'getTable', 'getTableGatewayProxy', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet'))
                                    ->getMock();
         $factoryUtilities->expects($this->once())
                            ->method('initAdapter')
@@ -125,7 +125,7 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
         /**************** test with feature and result return origin objects ****************/
         $factoryUtilities2 = $this->getMockBuilder('LocGatewayManager\GatewayFactoryUtilities')
-                                  ->setMethods(array('initAdapter', 'initEntity', 'getTable', 'getTableGatewayTarget', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet', 'setAdapterKey'))
+                                  ->setMethods(array('initAdapter', 'initEntity', 'getTable', 'getTableGatewayProxy', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet', 'setAdapterKey'))
                                   ->getMock();
         $factoryUtilities2->expects($this->once())
                           ->method('initAdapter')
@@ -307,23 +307,23 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group TableGatewayTarget
+     * @group TableGatewayProxy
      */
-    public function testGetTableGatewayTarget()
+    public function testGetTableGatewayProxy()
     {
         $tableGateway = $this->GatewayFactory->setMethods(null)->getMock();
-        $tableGateway->setTableGatewayTarget('xzzTABLEzzx');
+        $tableGateway->setTableGatewayProxy('xzzTABLEzzx');
 
-        $this->assertEquals('xzzTABLEzzx', $tableGateway->getTableGatewayTarget());
+        $this->assertEquals('xzzTABLEzzx', $tableGateway->getTableGatewayProxy());
     }
 
     /**
-     * @group TableGatewayTarget
+     * @group TableGatewayProxy
      */
-    public function testsetTableGatewayTarget()
+    public function testsetTableGatewayProxy()
     {
         $tableGateway = $this->GatewayFactory->setMethods(null)->getMock();
-        $this->assertNotNull('zzTABLEzz', $tableGateway->setTableGatewayTarget('xx'));
+        $this->assertNotNull('zzTABLEzz', $tableGateway->setTableGatewayProxy('xx'));
     }
 
     /**

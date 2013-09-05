@@ -39,7 +39,7 @@ class GatewayFactory
     /**
      * @var string
      */
-    protected $tableGatewayTarget;
+    protected $tableGatewayProxy;
 
     /**
      * @var \LocGatewayManager\GatewayWorker
@@ -65,7 +65,7 @@ class GatewayFactory
     public function run()
     {
         $worker = $this->getWorker();
-        $processor = $this->factoryUtilities;
+        $utilities = $this->factoryUtilities;
 
         if (isset($worker) && $worker instanceof GatewayWorker) {
             $adapterKeyName = $worker->getAdapterKeyName();
@@ -75,20 +75,20 @@ class GatewayFactory
             $tableName      = $worker->getTableName();
             $tableGatewayName = $worker->getTableGatewayName();
 
-            $processor->setAdapterKey($adapterKeyName);
-            $adapter = $processor->initAdapter($adapterKeyName);
-            $entity  = $processor->initEntity($entityName, $adapter);
+            $utilities->setAdapterKey($adapterKeyName);
+            $adapter = $utilities->initAdapter($adapterKeyName);
+            $entity  = $utilities->initEntity($entityName, $adapter);
 
-            $table   = $processor->getTable($tableName, $entity, $adapter);
-            $tableGatewayTarget = $processor->getTableGatewayTarget($tableGatewayName, $entity);
+            $table   = $utilities->getTable($tableName, $entity, $adapter);
+            $tableGatewayProxy = $utilities->getTableGatewayProxy($tableGatewayName, $entity);
 
-            $feature   = $processor->initFeature($featureName);
-            $resultSet = $processor->initResultSet($resultSetName);
+            $feature   = $utilities->initFeature($featureName);
+            $resultSet = $utilities->initResultSet($resultSetName);
 
             $this->setAdapter($adapter);
             $this->setEntity($entity);
             $this->setTable($table);
-            $this->setTableGatewayTarget($tableGatewayTarget);
+            $this->setTableGatewayProxy($tableGatewayProxy);
 
             // initialize feature
             if (isset($feature)) {
@@ -142,17 +142,17 @@ class GatewayFactory
     /**
      * @return string
      */
-    public function getTableGatewayTarget()
+    public function getTableGatewayProxy()
     {
-        return $this->tableGatewayTarget;
+        return $this->tableGatewayProxy;
     }
 
     /**
      * @param string $tableGatewayString
      */
-    public function setTableGatewayTarget($tableGatewayTarget)
+    public function setTableGatewayProxy($tableGatewayTarget)
     {
-        $this->tableGatewayTarget = $tableGatewayTarget;
+        $this->tableGatewayProxy = $tableGatewayTarget;
         return $this;
     }
 
