@@ -3,6 +3,19 @@ namespace LocGatewayManager;
 
 class Module
 {
+    /*
+    public function init($moduleManager)
+    {
+        $sm = $moduleManager->getEvent()->getParam('ServiceManager');
+        $serviceListener = $sm->get('ServiceListener');
+        $serviceListener->addServiceManager(
+            __NAMESPACE__ . '\LocGatewayManagerPluginManager',
+            'loc_gateway_plugin_config',
+            __NAMESPACE__ . '\LocGatewayManagerPluginProviderInterface',
+            'getLocGatewayPluginConfig'
+        );
+    }
+*/
     public function getConfig()
     {
         if (defined('APPLICATION_ENV')) {
