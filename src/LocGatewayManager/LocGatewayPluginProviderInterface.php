@@ -2,7 +2,7 @@
 
 namespace LocGatewayManager;
 
-interface LocGatewayManagerPluginProviderInterface
+interface LocGatewayPluginProviderInterface
 {
     /**
      * @return array|\Zend\ServiceManager\Config

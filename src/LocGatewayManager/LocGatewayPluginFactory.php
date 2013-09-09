@@ -5,9 +5,9 @@ use Zend\Mvc\Service\AbstractPluginManagerFactory;
 use Zend\ServiceManager\ConfigInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class LocGatewayManagerFactory extends AbstractPluginManagerFactory
+class LocGatewayPluginFactory extends AbstractPluginManagerFactory
 {
-    const PLUGIN_MANAGER_CLASS = 'LocGatewayManagerPluginManager';
+    const PLUGIN_MANAGER_CLASS = 'LocGatewayManager\LocGatewayPluginManager';
 
     /**
      * Create and return the LocGateway plugin manager

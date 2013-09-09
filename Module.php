@@ -3,19 +3,18 @@ namespace LocGatewayManager;
 
 class Module
 {
-    /*
+
     public function init($moduleManager)
     {
-        $sm = $moduleManager->getEvent()->getParam('ServiceManager');
-        $serviceListener = $sm->get('ServiceListener');
+        $serviceListener = $moduleManager->getEvent()->getParam('ServiceManager')->get('ServiceListener');
         $serviceListener->addServiceManager(
-            __NAMESPACE__ . '\LocGatewayManagerPluginManager',
+            'LocGatewayPlugin',
             'loc_gateway_plugin_config',
-            __NAMESPACE__ . '\LocGatewayManagerPluginProviderInterface',
+            __NAMESPACE__ . '\LocGatewayPluginProviderInterface',
             'getLocGatewayPluginConfig'
         );
     }
-*/
+
     public function getConfig()
     {
         if (defined('APPLICATION_ENV')) {
@@ -46,6 +45,7 @@ class Module
                 'LocGatewayFactoryUtilities' => __NAMESPACE__ . '\GatewayFactoryUtilities',
             ),
             'factories' => array(
+                'LocGatewayPlugin' => __NAMESPACE__ . '\LocGatewayPluginFactory',
                 'LocGatewayFactory' => function ($sm) {
                     return new GatewayFactory($sm->get('LocGatewayFactoryUtilities'));
                 },
@@ -80,8 +80,8 @@ class Module
             ),
             'initializers' => array(
                 function ($instance, $sm) {
-                    if ($instance instanceof LocGatewayManagerAwareInterface) {
-                        $instance->setLocGatewayManager($sm->get('LocGatewayManager'));
+                    if ($instance instanceof LocGatewayPluginAwareInterface) {
+                        $instance->setLocGatewayPlugin($sm->get('LocGatewayPlugin'));
                     }
                 },
             ),
