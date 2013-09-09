@@ -14,6 +14,26 @@ class LocGatewayPluginManager extends AbstractPluginManager
     protected $shareByDefault = false;
 
     /**
+     * Proxy to factory method
+     * @param array $config
+     * @param string $index
+     * @return TableGateway
+     */
+    public function factory(array $config, $index)
+    {
+        return $this->getLocGatewayManager()->factory($config, $index);
+    }
+
+    /**
+     * Proxy to gateway manager
+     * @return Manager
+     */
+    public function getLocGatewayManager()
+    {
+        return $this->getServiceLocator()->get('LocGatewayManager');
+    }
+
+    /**
      * (non-PHPdoc)
      * @see \Zend\ServiceManager\AbstractPluginManager::validatePlugin()
      */
