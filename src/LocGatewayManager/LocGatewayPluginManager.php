@@ -16,12 +16,11 @@ class LocGatewayPluginManager extends AbstractPluginManager
     /**
      * Proxy to factory method
      * @param array $config
-     * @param string $index
      * @return TableGateway
      */
-    public function factory(array $config, $index)
+    public function factory(array $config)
     {
-        return $this->getLocGatewayManager()->factory($config, $index);
+        return $this->getLocGatewayManager()->factory($config);
     }
 
     /**
