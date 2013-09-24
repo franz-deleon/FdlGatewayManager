@@ -119,6 +119,20 @@ abstract class AbstractTable implements TableInterface
     }
 
     /**
+     * Delete a row by primary key
+     * @param $id
+     */
+    public function deleteByPrimaryKey($id)
+    {
+        $primaryKey = $this->getPrimaryKey();
+        if (null !== $primaryKey) {
+            $result = $this->getTableGateway()
+                           ->delete(array("{$primaryKey} = ?" => $id));
+            return $result;
+        }
+    }
+
+    /**
      * Retrieve a row by primary key
      * @param integer $id
      * @return Ambigous <NULL, \Zend\Db\ResultSet\ResultSetInterface, \Zend\Db\ResultSet\ResultSet>
