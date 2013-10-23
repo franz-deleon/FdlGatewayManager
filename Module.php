@@ -6,12 +6,14 @@ class Module
 
     public function init($moduleManager)
     {
-        $serviceListener = $moduleManager->getEvent()->getParam('ServiceManager')->get('ServiceListener');
-        $serviceListener->addServiceManager(
-            'LocGatewayPlugin',
-            'loc_gateway_plugin_config',
-            __NAMESPACE__ . '\LocGatewayPluginProviderInterface',
-            'getLocGatewayPluginConfig'
+        $config = $this->getConfig();
+        $listener = $moduleManager->getEvent()->getParam('ServiceManager')->get('ServiceListener');
+
+        $listener->addServiceManager(
+            $config['loc_service_listener_options']['service_manager'],
+            $config['loc_service_listener_options']['config_key'],
+            $config['loc_service_listener_options']['interface'],
+            $config['loc_service_listener_options']['method']
         );
     }
 
@@ -45,7 +47,6 @@ class Module
                 'LocGatewayFactoryUtilities' => __NAMESPACE__ . '\GatewayFactoryUtilities',
             ),
             'factories' => array(
-                'LocGatewayPlugin' => __NAMESPACE__ . '\LocGatewayPluginFactory',
                 'LocGatewayFactory' => function ($sm) {
                     return new GatewayFactory($sm->get('LocGatewayFactoryUtilities'));
                 },

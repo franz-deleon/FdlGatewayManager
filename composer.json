@@ -1,0 +1,30 @@
+{
+    "name": "franz-deleon/fdl-gateway-manager",
+    "type": "library",
+    "description": "A ZF2 module use to manage Zend Db gateway instances",
+    "keywords": [
+        "Gateway Manager",
+        "Zend Framework",
+        "zf2"
+    ],
+    "homepage": "https://github.com/franz-deleon/FdlGatewayManager",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Franz de Leon",
+            "email": "franz_dl@yahoo.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": ">=2.2.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "FdlGatewayManager": "src/"
+        },
+        "classmap": [
+            "./Module.php"
+        ]
+    }
+}
