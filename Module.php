@@ -1,5 +1,5 @@
 <?php
-namespace LocGatewayManager;
+namespace FdlGatewayManager;
 
 class Module
 {
@@ -10,10 +10,10 @@ class Module
         $listener = $moduleManager->getEvent()->getParam('ServiceManager')->get('ServiceListener');
 
         $listener->addServiceManager(
-            $config['loc_service_listener_options']['service_manager'],
-            $config['loc_service_listener_options']['config_key'],
-            $config['loc_service_listener_options']['interface'],
-            $config['loc_service_listener_options']['method']
+            $config['fdl_service_listener_options']['service_manager'],
+            $config['fdl_service_listener_options']['config_key'],
+            $config['fdl_service_listener_options']['interface'],
+            $config['fdl_service_listener_options']['method']
         );
     }
 
@@ -21,7 +21,7 @@ class Module
     {
         if (defined('APPLICATION_ENV')) {
             if (APPLICATION_ENV == 'unittest') {
-                return include __DIR__ . '/test/LocGatewayManagerTest/config/module.config.php';
+                return include __DIR__ . '/test/FdlGatewayManagerTest/config/module.config.php';
             }
         }
         return include __DIR__ . '/config/module.config.php';
@@ -42,17 +42,17 @@ class Module
     {
         return array(
             'invokables' => array(
-                'LocGatewayManager'  => __NAMESPACE__ . '\Manager',
-                'LocGatewayWorker'   => __NAMESPACE__ . '\GatewayWorker',
-                'LocGatewayFactoryUtilities' => __NAMESPACE__ . '\GatewayFactoryUtilities',
+                'FdlGatewayManager'  => __NAMESPACE__ . '\Manager',
+                'FdlGatewayWorker'   => __NAMESPACE__ . '\GatewayWorker',
+                'FdlGatewayFactoryUtilities' => __NAMESPACE__ . '\GatewayFactoryUtilities',
             ),
             'factories' => array(
-                'LocGatewayFactory' => function ($sm) {
-                    return new GatewayFactory($sm->get('LocGatewayFactoryUtilities'));
+                'FdlGatewayFactory' => function ($sm) {
+                    return new GatewayFactory($sm->get('FdlGatewayFactoryUtilities'));
                 },
-                'LocGatewayTableGateway' => function ($sm) {
-                    $gwfactory    = $sm->get('LocGatewayFactory');
-                    $factoryUtils = $sm->get('LocGatewayFactoryUtilities');
+                'FdlGatewayTableGateway' => function ($sm) {
+                    $gwfactory    = $sm->get('FdlGatewayFactory');
+                    $factoryUtils = $sm->get('FdlGatewayFactoryUtilities');
 
                     // initialize a gateway
                     $gateway = $factoryUtils->getConfigGatewayName();
@@ -76,13 +76,13 @@ class Module
                 },
             ),
             'shared' => array(
-                'LocGatewayWorker' => false,
-                'LocGatewayTableGateway' => false,
+                'FdlGatewayWorker' => false,
+                'FdlGatewayTableGateway' => false,
             ),
             'initializers' => array(
                 function ($instance, $sm) {
-                    if ($instance instanceof LocGatewayPluginAwareInterface) {
-                        $instance->setLocGatewayPlugin($sm->get('LocGatewayPlugin'));
+                    if ($instance instanceof FdlGatewayPluginAwareInterface) {
+                        $instance->setGatewayPlugin($sm->get('FdlGatewayPlugin'));
                     }
                 },
             ),

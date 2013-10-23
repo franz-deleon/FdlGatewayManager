@@ -2,19 +2,19 @@
 return array(
     'service_manager' => array(
         'factories' => array(
-            'LocGatewayPlugin' => 'LocGatewayManager\LocGatewayPluginFactory',
+            'FdlGatewayPlugin' => 'FdlGatewayManager\FdlGatewayPluginFactory',
         ),
     ),
-    'loc_gateway_manager_assets' => array(
+    'fdl_gateway_manager_assets' => array(
         'gateway'  => 'default',
     ),
-    'loc_gateway_manager_gateways' => array(
+    'fdl_gateway_manager_gateways' => array(
         'default' => 'Zend\Db\TableGateway\TableGateway',
     ),
-    'loc_service_listener_options' => array(
-        'service_manager' => 'LocGatewayPlugin',
-        'config_key'      => 'loc_gateway_plugin_config',
-        'interface'       => 'LocGatewayManager\LocGatewayPluginProviderInterface',
-        'method'          => 'getLocGatewayPluginConfig',
+    'fdl_service_listener_options' => array(
+        'service_manager' => 'FdlGatewayPlugin',
+        'config_key'      => 'fdl_gateway_plugin_config',
+        'interface'       => 'FdlGatewayManager\FdlGatewayPluginProviderInterface',
+        'method'          => 'getFdlGatewayPluginConfig',
     ),
 );

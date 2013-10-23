@@ -1,6 +1,5 @@
 <?php
-
-namespace LocGatewayManagerTest;
+namespace FdlGatewayManagerTest;
 
 use Zend\Loader\AutoloaderFactory;
 use Zend\Mvc\Service\ServiceManagerConfig;
@@ -38,7 +37,7 @@ class Bootstrap
                 'config_glob_paths' => array(__DIR__ . '/../../../config/autoload/{,*.}{global,staging,test,local}.php')
             ),
             'modules' => array(
-                self::getModuleName(),
+                'FdlGatewayManager',
             )
         );
 
