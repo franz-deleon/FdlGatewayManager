@@ -19,11 +19,6 @@ class Module
 
     public function getConfig()
     {
-        if (defined('APPLICATION_ENV')) {
-            if (APPLICATION_ENV == 'unittest') {
-                return include __DIR__ . '/test/FdlGatewayManagerTest/config/module.config.php';
-            }
-        }
         return include __DIR__ . '/config/module.config.php';
     }
 
