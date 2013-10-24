@@ -91,33 +91,6 @@ abstract class AbstractTable implements TableInterface
         return $this;
     }
 
-
-    /**
-     * Filter a set of array data and return filtered results
-     *
-     * USAGE:
-     * $this->filter(array(
-     *     'username' => 'xxx',
-     *     'password' => 'yyy',
-     * ));
-     *
-     * @param array $data
-     * @return multitype:
-     */
-    public function filter($data = array())
-    {
-        $filter = $this->getFilter();
-        if (null !== $filter) {
-            $filter->makeRequired(array_flip($data));
-
-            $factory = new InputFilterFactory();
-            $inputFilter = $factory->createInputFilter($filter);
-
-            $inputFilter->setData($data);
-            return $inputFilter->getValues();
-        }
-    }
-
     /**
      * Delete a row by primary key
      * @param $id

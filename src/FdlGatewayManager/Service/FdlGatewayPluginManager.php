@@ -1,6 +1,8 @@
 <?php
-namespace FdlGatewayManager;
+namespace FdlGatewayManager\Service;
 
+use FdlGatewayManager\Exception;
+use FdlGatewayManager\Gateway;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\Db\TableGateway\TableGateway;
 

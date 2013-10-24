@@ -1,5 +1,5 @@
 <?php
-namespace FdlGatewayManager;
+namespace FdlGatewayManager\Service;
 
 interface FdlGatewayPluginProviderInterface
 {

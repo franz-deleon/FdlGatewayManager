@@ -88,7 +88,7 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
         if (class_exists($entityName)) {
             $class = $entityName;
         } else {
-            $class = $this->getFQNSClass($entityName, 'entity');
+            $class = $this->getFQNSClassFromMapping($entityName, 'entity');
             if (null === $class) {
                 throw new Exception\ClassNotExistException('Entity ' . $entityName . ' does not exist.');
             }
@@ -173,7 +173,7 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
         if (class_exists($tableName)) {
             $class = $tableName;
         } else {
-            $class = $this->getFQNSClass($tableName, 'table');
+            $class = $this->getFQNSClassFromMapping($tableName, 'table');
         }
 
         if ($class !== null) {
@@ -215,10 +215,10 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
      */
     public function getTableGatewayProxy($tableGatewayName = null, $fallback = null)
     {
-        $classString = $this->getFQNSClass($tableGatewayName, 'table');
+        $classString = $this->getFQNSClassFromMapping($tableGatewayName, 'table');
         if (!isset($classString) && isset($fallback)) {
             $fallback = $this->extractClassnameFromNamespace($fallback);
-            $classString = $this->getFQNSClass($fallback, 'table');
+            $classString = $this->getFQNSClassFromMapping($fallback, 'table');
         }
         return $classString;
     }
@@ -246,7 +246,7 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
      * @param string $type
      * @return string|null
      */
-    public function getFQNSClass($className, $type)
+    protected function getFQNSClassFromMapping($className, $type)
     {
         $typeMapping = array(
             'table' => 'tables',
@@ -326,10 +326,10 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
         }
 
         if (is_string($namespace)) {
-            $namespace = explode("\\", $namespace);
-            $namespace = array_pop($namespace);
-            return $namespace;
+            $namespace = substr($namespace, (strrpos($namespace, '\\') + 1));
         }
+
+        return $namespace;
     }
 
     /**

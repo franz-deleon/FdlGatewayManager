@@ -81,7 +81,7 @@ class Module
             ),
             'initializers' => array(
                 function ($instance, $sm) {
-                    if ($instance instanceof FdlGatewayPluginAwareInterface) {
+                    if ($instance instanceof GatewayPluginAwareInterface) {
                         $instance->setGatewayPlugin($sm->get('FdlGatewayPlugin'));
                     }
                 },
