@@ -23,12 +23,16 @@ class AdapterFactory implements ServiceManager\FactoryInterface
         $config  = $this->getServiceLocator()->get('config');
         $adapter = $config['fdl_gateway_manager']['adapter'];
 
-        return new $adapter(
-            $this->getDriverParams(),
-            $this->getPlatform(),
-            $this->getQueryResultPrototype(),
-            $this->getProfiler()
-        );
+        if (is_object($adapter)) {
+            return $adapter;
+        } else {
+            return new $adapter(
+                $this->getDriverParams(),
+                $this->getPlatform(),
+                $this->getQueryResultPrototype(),
+                $this->getProfiler()
+            );
+        }
     }
 
     /**
@@ -57,7 +61,7 @@ class AdapterFactory implements ServiceManager\FactoryInterface
         $adapterConfig = $this->getAdapterConfig();
 
         $platform = null;
-        if (isset($adapterConfig['platform'])) {
+        if (isset($adapterConfig['platform']) && is_string($adapterConfig['platform'])) {
             $platform = $adapterConfig['platform'];
             if (class_exists($platform)) {
                 $platform = new $platform();
@@ -69,6 +73,8 @@ class AdapterFactory implements ServiceManager\FactoryInterface
                     throw new Exception\ClassNotExistException('Platform for db driver does not exist.');
                 }
             }
+        } elseif (isset($adapterConfig['platform']) && is_object($adapterConfig['platform'])) {
+            $platform = $adapterConfig['platform'];
         }
 
         return $platform;
@@ -79,7 +85,7 @@ class AdapterFactory implements ServiceManager\FactoryInterface
         $adapterConfig = $this->getAdapterConfig();
 
         $qrPrototype = null;
-        if (isset($adapterConfig['query_result_prototype'])) {
+        if (isset($adapterConfig['query_result_prototype']) && is_string($adapterConfig['query_result_prototype'])) {
             $qrPrototype = $adapterConfig['query_result_prototype'];
             if (class_exists($qrPrototype)) {
                 $qrPrototype = new $qrPrototype();
@@ -91,6 +97,8 @@ class AdapterFactory implements ServiceManager\FactoryInterface
                     throw new Exception\ClassNotExistException('Query Result Prototype for db driver does not exist.');
                 }
             }
+        } elseif (isset($adapterConfig['query_result_prototype']) && is_object($adapterConfig['query_result_prototype'])) {
+            $qrPrototype = $adapterConfig['query_result_prototype'];
         }
 
         return $qrPrototype;
@@ -101,7 +109,7 @@ class AdapterFactory implements ServiceManager\FactoryInterface
         $adapterConfig = $this->getAdapterConfig();
 
         $profiler = null;
-        if (isset($adapterConfig['profiler'])) {
+        if (isset($adapterConfig['profiler']) && is_String($adapterConfig['profiler'])) {
             $profiler = $adapterConfig['profiler'];
             if (class_exists($profiler)) {
                 $profiler = new $profiler();
@@ -113,6 +121,8 @@ class AdapterFactory implements ServiceManager\FactoryInterface
                     throw new Exception\ClassNotExistException('Query Result Prototype for db driver does not exist.');
                 }
             }
+        } elseif (isset($adapterConfig['profiler']) && is_object($adapterConfig['profiler'])) {
+            $profiler = $adapterConfig['profiler'];
         }
 
         return $profiler;
