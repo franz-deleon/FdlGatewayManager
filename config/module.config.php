@@ -5,11 +5,9 @@ return array(
             'FdlGatewayPlugin' => 'FdlGatewayManager\Service\FdlGatewayPluginFactory',
         ),
     ),
-    'fdl_gateway_manager_assets' => array(
-        'gateway'  => 'default',
-    ),
-    'fdl_gateway_manager_gateways' => array(
-        'default' => 'Zend\Db\TableGateway\TableGateway',
+    'fdl_gateway_manager' => array(
+        'gateway' => 'Zend\Db\TableGateway\TableGateway',
+        'adapter' => 'Zend\Db\Adapter\Adapter',
     ),
     'fdl_service_listener_options' => array(
         'service_manager' => 'FdlGatewayPlugin',

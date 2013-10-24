@@ -64,8 +64,11 @@ class GatewayFactory extends AbstractServiceLocatorAware
             $tableName      = $worker->getTableName();
             $tableGatewayName = $worker->getTableGatewayName();
 
+            $adapterFactory = $this->getServiceLocator()->get('FdlAdapterFactory');
+            $adapterFactory->setAdapterKey($adapterKeyName);
+            $adapter = $adapterFactory->createAdapter();
+
             $utilities->setAdapterKey($adapterKeyName);
-            $adapter = $utilities->initAdapter($adapterKeyName);
             $entity  = $utilities->initEntity($entityName, $adapter);
 
             $table   = $utilities->getTable($tableName, $entity, $adapter);
@@ -260,7 +263,7 @@ class GatewayFactory extends AbstractServiceLocatorAware
     {
         $properties = get_object_vars($this);
         while (list($key) = each($properties)) {
-            if ($key != 'serviceLocator' && $key != 'factoryUtilities') {
+            if ($key != 'serviceLocator') {
                 $this->{$key} = null;
             }
         }

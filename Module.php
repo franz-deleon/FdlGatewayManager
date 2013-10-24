@@ -43,6 +43,7 @@ class Module
                 'FdlGatewayFactoryUtilities' => __NAMESPACE__ . '\GatewayFactoryUtilities',
             ),
             'factories' => array(
+                'FdlAdapterFactory' => __NAMESPACE__ . '\Factory\AdapterFactory',
                 'FdlGatewayTableGateway' => function ($sm) {
                     $gwfactory    = $sm->get('FdlGatewayFactory');
                     $factoryUtils = $sm->get('FdlGatewayFactoryUtilities');

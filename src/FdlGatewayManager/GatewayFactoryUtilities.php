@@ -12,60 +12,6 @@ class GatewayFactoryUtilities extends AbstractServiceLocatorAware
     protected $adapterKey;
 
     /**
-     * Retrieve the db adapter
-     *
-     * @param string $adapterKeyName
-     * @throws \ErrorException
-     * @return \Zend\Db\Adapter\Adapter
-     */
-    public function initAdapter($adapterKeyName = null)
-    {
-        $config = $this->getServiceLocator()->get('config');
-        switch (true) {
-            case isset($config['database']):
-                $db = $config['database'];
-                break;
-            case isset($config['db']):
-                $db = $config['db'];
-                break;
-        }
-
-        if (!isset($db)) {
-            throw new Exception\InvalidArgumentException('Adapter config is not found.');
-        }
-
-        $adapterKeyName = $adapterKeyName ?: $this->getAdapterKey();
-        if (!empty($adapterKeyName)) {
-            if (is_array($db[$adapterKeyName])) {
-                $db = $db[$adapterKeyName];
-            }
-        } else {
-            if (is_array($db)) {
-                if (isset($db['default'])) { // look for default key
-                    $db = is_array($db['default']) ? $db['default'] : null;
-                } else { // just get the input in the config
-                    $firstConfig = array_shift($db);
-                    if (is_array($firstConfig)) {
-                        $db = $firstConfig;
-                    }
-                }
-            }
-        }
-
-        // look for platform
-        $platform = null;
-        if (array_key_exists('platform', $db)) {
-            $platform = $db['platform'];
-            if (is_string($platform)) {
-                $platform = new $platform();
-            }
-            unset($db['platform']);
-        }
-
-        return new Adapter($db, $platform);
-    }
-
-    /**
      * Initialize a Table entity
      * @param string $entityName Entity name
      * @throws \ErrorException
@@ -77,7 +23,7 @@ class GatewayFactoryUtilities extends AbstractServiceLocatorAware
         if (class_exists($entityName)) {
             $class = $entityName;
         } else {
-            $class = $this->getFQNSClassFromMapping($entityName, 'entity');
+            $class = $this->getFQNSClassFromMapping($entityName, 'entities');
             if (null === $class) {
                 throw new Exception\ClassNotExistException('Entity ' . $entityName . ' does not exist.');
             }
@@ -162,7 +108,7 @@ class GatewayFactoryUtilities extends AbstractServiceLocatorAware
         if (class_exists($tableName)) {
             $class = $tableName;
         } else {
-            $class = $this->getFQNSClassFromMapping($tableName, 'table');
+            $class = $this->getFQNSClassFromMapping($tableName, 'tables');
         }
 
         if ($class !== null) {
@@ -204,10 +150,10 @@ class GatewayFactoryUtilities extends AbstractServiceLocatorAware
      */
     public function getTableGatewayProxy($tableGatewayName = null, $fallback = null)
     {
-        $classString = $this->getFQNSClassFromMapping($tableGatewayName, 'table');
+        $classString = $this->getFQNSClassFromMapping($tableGatewayName, 'tables');
         if (!isset($classString) && isset($fallback)) {
             $fallback = $this->extractClassnameFromNamespace($fallback);
-            $classString = $this->getFQNSClassFromMapping($fallback, 'table');
+            $classString = $this->getFQNSClassFromMapping($fallback, 'tables');
         }
         return $classString;
     }
@@ -218,60 +164,42 @@ class GatewayFactoryUtilities extends AbstractServiceLocatorAware
     public function getConfigGatewayName()
     {
         $config = $this->getServiceLocator()->get('config');
-        if (!empty($config['fdl_gateway_manager_assets']['gateway'])) {
-            $gatewayName = $config['fdl_gateway_manager_assets']['gateway'];
-            if (!empty($config['fdl_gateway_manager_gateways'][$gatewayName])) {
-                $gateway = $config['fdl_gateway_manager_gateways'][$gatewayName];
-            }
-        } else {
-            $gateway = $config['fdl_gateway_manager_gateways']['default'];
-        }
-        return $gateway;
+        return $config['fdl_gateway_manager']['gateway'];
     }
 
     /**
      * Retrieve the fully qualified class namespace
-     * @param string $className
+     * @param string $class
      * @param string $type
      * @return string|null
      */
-    protected function getFQNSClassFromMapping($className, $type)
+    protected function getFQNSClassFromMapping($class, $type)
     {
         $typeMapping = array(
             'table' => 'tables',
             'entity' => 'entities',
         );
 
-        $class = null;
-        if (array_key_exists($type, $typeMapping)) {
-            $config = $this->getServiceLocator()->get('config');
-            $adapterKey = $this->getAdapterKey() ?: 'default';
-            foreach ($config['fdl_gateway_manager_assets'] as $key => $val) {
-                if (is_array($val)) {
-                    if ($key == $adapterKey) {
-                        $settingKey = $typeMapping[$type];
-                        $class = "{$val[$settingKey]}\\{$className}";
-                        break;
-                    }
-                } else {
-                    if ($key == $typeMapping[$type]) {
-                        $class = "{$val}\\{$className}";
-                        break;
-                    }
-                }
-            }
+        $className = null;
+        $config = $this->getServiceLocator()->get('config');
+        $adapterKey = $this->getAdapterKey() ?: 'default';
 
-            if (isset($class)) {
-                if (!class_exists($class)) {
-                    $class = $class . ucfirst($type);
-                    if (!class_exists($class)) {
-                        $class = null;
+        if (in_array($type, $typeMapping)) {
+            $classNs = $config['fdl_gateway_manager']['asset_location'][$adapterKey][$type];
+            if (isset($classNs)) {
+                $className  = "{$classNs}\\{$class}";
+                if (!class_exists($className)) {
+                    // look for classes that hass appending Table or Entity like UserEntity
+                    $typeMapping = array_flip($typeMapping);
+                    $className = $className . ucfirst($typeMapping[$type]);
+                    if (!class_exists($className)) {
+                        $className = null;
                     }
                 }
             }
         }
 
-        return $class;
+        return $className;
     }
 
     /**
