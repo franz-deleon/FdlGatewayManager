@@ -3,7 +3,7 @@ namespace FdlGatewayManager;
 
 use Zend\Db;
 
-class GatewayFactory
+class GatewayFactory extends AbstractServiceLocatorAware
 {
     /**
      * @var \Zend\Db\Adapter\Adapter
@@ -47,17 +47,6 @@ class GatewayFactory
     protected $gatewayWorker;
 
     /**
-     * @var \FdlGatewayManager\GatewayFactoryProcessor
-     */
-    protected $factoryUtilities;
-
-
-    public function __construct(GatewayFactoryUtilities $utilities)
-    {
-        $this->factoryUtilities = $utilities;
-    }
-
-    /**
      * Run the factory
      * @param void
      * @return null
@@ -65,7 +54,7 @@ class GatewayFactory
     public function run()
     {
         $worker = $this->getWorker();
-        $utilities = $this->factoryUtilities;
+        $utilities = $this->getServiceLocator()->get('FdlGatewayFactoryUtilities');
 
         if (isset($worker) && $worker instanceof GatewayWorker) {
             $adapterKeyName = $worker->getAdapterKeyName();

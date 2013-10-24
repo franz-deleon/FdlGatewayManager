@@ -3,7 +3,7 @@ namespace FdlGatewayManager;
 
 use Zend\Db\TableGateway;
 
-class Manager extends AbstractManager
+class GatewayManager extends AbstractServiceLocatorAware
 {
     /**
      * Usage:
@@ -21,7 +21,7 @@ class Manager extends AbstractManager
      */
     public function factory(array $params)
     {
-        $worker  = $this->getGatewayWorker();
+        $worker = $this->getServiceLocator()->get('FdlGatewayWorker');
 
         if (isset($params['adapter_key_name'])) {
             $worker->setAdapterKeyName($params['adapter_key_name']);
@@ -40,7 +40,7 @@ class Manager extends AbstractManager
         }
 
         // is a Service Manager factory which injects the worker
-        $factory = $this->getGatewayFactory();
+        $factory = $this->getServiceLocator()->get('FdlGatewayFactory');
         $factory->setWorker($worker)
                 ->run();
 

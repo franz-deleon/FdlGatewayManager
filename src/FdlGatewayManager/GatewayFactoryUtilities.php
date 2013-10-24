@@ -3,24 +3,13 @@ namespace FdlGatewayManager;
 
 use Zend\Db\Adapter\Adapter;
 use Zend\Filter\Word;
-use Zend\ServiceManager;
 
-class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInterface
+class GatewayFactoryUtilities extends AbstractServiceLocatorAware
 {
-    /**
-     * @var string Name to look for in configurations
-     */
-    const CONFIG_FDL_DB = 'fdl_gateway_manager_assets';
-
     /**
      * @var string
      */
     protected $adapterKey;
-
-    /**
-     * @var ServiceManager\ServiceManager
-     */
-    protected $serviceLocator;
 
     /**
      * Retrieve the db adapter
@@ -229,8 +218,8 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
     public function getConfigGatewayName()
     {
         $config = $this->getServiceLocator()->get('config');
-        if (!empty($config[self::CONFIG_FDL_DB]['gateway'])) {
-            $gatewayName = $config[self::CONFIG_FDL_DB]['gateway'];
+        if (!empty($config['fdl_gateway_manager_assets']['gateway'])) {
+            $gatewayName = $config['fdl_gateway_manager_assets']['gateway'];
             if (!empty($config['fdl_gateway_manager_gateways'][$gatewayName])) {
                 $gateway = $config['fdl_gateway_manager_gateways'][$gatewayName];
             }
@@ -256,10 +245,8 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
         $class = null;
         if (array_key_exists($type, $typeMapping)) {
             $config = $this->getServiceLocator()->get('config');
-            $config = $config[self::CONFIG_FDL_DB];
-
             $adapterKey = $this->getAdapterKey() ?: 'default';
-            foreach ($config as $key => $val) {
+            foreach ($config['fdl_gateway_manager_assets'] as $key => $val) {
                 if (is_array($val)) {
                     if ($key == $adapterKey) {
                         $settingKey = $typeMapping[$type];
@@ -330,28 +317,5 @@ class GatewayFactoryUtilities implements ServiceManager\ServiceLocatorAwareInter
         }
 
         return $namespace;
-    }
-
-    /**
-     * Get service locator
-     *
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator()
-    {
-        if (null === $this->serviceLocator) {
-            throw new Exception\ClassNotExistException('Service Locator is not set');
-        }
-        return $this->serviceLocator;
-    }
-
-    /**
-     * Set service locator
-     * @param ServiceLocatorInterface $serviceLocator
-     */
-    public function setServiceLocator(ServiceManager\ServiceLocatorInterface $serviceLocator)
-    {
-        $this->serviceLocator = $serviceLocator;
-        return $this;
     }
 }

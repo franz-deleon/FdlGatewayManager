@@ -3,25 +3,9 @@ namespace FdlGatewayManager;
 
 use Zend\ServiceManager;
 
-abstract class AbstractManager implements ServiceManager\ServiceLocatorAwareInterface
+abstract class AbstractServiceLocatorAware implements ServiceManager\ServiceLocatorAwareInterface
 {
     protected $serviceLocator;
-
-    /**
-     * @return GatewayWorker
-     */
-    public function getGatewayWorker()
-    {
-        return $this->getServiceLocator()->get('FdlGatewayWorker');
-    }
-
-    /**
-     * @return GatewayFactory
-     */
-    public function getGatewayFactory()
-    {
-        return $this->getServiceLocator()->get('FdlGatewayFactory');
-    }
 
     /**
      * Set service locator

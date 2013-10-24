@@ -2,9 +2,8 @@
 namespace FdlGatewayManager;
 
 use Zend\Db\TableGateway\TableGateway;
-use Zend\ServiceManager;
 
-class GatewayWorker implements WorkerInterface, ServiceManager\ServiceLocatorAwareInterface
+class GatewayWorker extends AbstractServiceLocatorAware implements WorkerInterface
 {
     /**
      * @var string
@@ -35,11 +34,6 @@ class GatewayWorker implements WorkerInterface, ServiceManager\ServiceLocatorAwa
      * @var string
      */
     protected $tableGatewayName;
-
-    /**
-     * @var ServiceManager\ServiceLocatorInterface
-     */
-    protected $serviceLocator;
 
     /**
      * The worker assembles the table gateway
@@ -165,25 +159,6 @@ class GatewayWorker implements WorkerInterface, ServiceManager\ServiceLocatorAwa
     public function setTableGatewayName($tableGatewayName)
     {
         $this->tableGatewayName = $tableGatewayName;
-        return $this;
-    }
-
-    /**
-     * Get service locator
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator()
-    {
-        return $this->serviceLocator;
-    }
-
-    /**
-     * Set service locator
-     * @param ServiceLocatorInterface $serviceLocator
-     */
-    public function setServiceLocator(ServiceManager\ServiceLocatorInterface $serviceLocator)
-    {
-        $this->serviceLocator = $serviceLocator;
         return $this;
     }
 }

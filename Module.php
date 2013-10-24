@@ -42,14 +42,12 @@ class Module
     {
         return array(
             'invokables' => array(
-                'FdlGatewayManager'  => __NAMESPACE__ . '\Manager',
+                'FdlGatewayManager'  => __NAMESPACE__ . '\GatewayManager',
                 'FdlGatewayWorker'   => __NAMESPACE__ . '\GatewayWorker',
+                'FdlGatewayFactory'  => __NAMESPACE__ . '\GatewayFactory',
                 'FdlGatewayFactoryUtilities' => __NAMESPACE__ . '\GatewayFactoryUtilities',
             ),
             'factories' => array(
-                'FdlGatewayFactory' => function ($sm) {
-                    return new GatewayFactory($sm->get('FdlGatewayFactoryUtilities'));
-                },
                 'FdlGatewayTableGateway' => function ($sm) {
                     $gwfactory    = $sm->get('FdlGatewayFactory');
                     $factoryUtils = $sm->get('FdlGatewayFactoryUtilities');
