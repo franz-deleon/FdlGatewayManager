@@ -39,25 +39,25 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
     public function testRun()
     {
         // Gateway Worker stub
-        $workerMock = $this->getMockBuilder('\FdlGatewayManager\GatewayWorker')
+        $workerStub = $this->getMockBuilder('\FdlGatewayManager\GatewayWorker')
                            ->setMethods(array('getAdapterKeyName', 'getEntityName', 'getResultSetName', 'getFeatureName', 'getTableName', 'assemble'))
                            ->getMock();
-        $workerMock->expects($this->any())
+        $workerStub->expects($this->any())
                    ->method('getAdapterKeyName')
                    ->will($this->returnValue('Adapterkey'));
-        $workerMock->expects($this->any())
+        $workerStub->expects($this->any())
                    ->method('getEntityName')
                    ->will($this->returnValue('entityname'));
-        $workerMock->expects($this->any())
+        $workerStub->expects($this->any())
                    ->method('getResultSetName')
                    ->will($this->returnValue('resultSetName'));
-        $workerMock->expects($this->any())
+        $workerStub->expects($this->any())
                    ->method('getFeatureName')
                    ->will($this->returnValue('featureName'));
-        $workerMock->expects($this->any())
+        $workerStub->expects($this->any())
                    ->method('getTableName')
                    ->will($this->returnValue('tableName'));
-        $workerMock->expects($this->any())
+        $workerStub->expects($this->any())
                    ->method('assemble')
                    ->will($this->returnSelf());
 
@@ -119,41 +119,114 @@ class GatewayFactoryTest extends \PHPUnit_Framework_TestCase
                            ->will($this->returnValue($resultSetStub));
 
         $gatewayFactoryMock = $this->GatewayFactory->setMethods(null)->getMock();
-        $gatewayFactoryMock->__construct($factoryUtilities);
-        $gatewayFactoryMock->setWorker($workerMock);
+        $serviceManager = Bootstrap::getServiceManager()->setAllowOverride(true);
+        $serviceManager->setService('FdlGatewayFactoryUtilities', $factoryUtilities);
+
+        $gatewayFactoryMock->setServiceLocator($serviceManager);
+        $gatewayFactoryMock->setWorker($workerStub);
         $gatewayFactoryMock->run();
+    }
+
+    /**
+	 * Tests GatewayFactory->__construct()
+	 * @group Run2
+	 */
+    public function testWithFeatureAndResultReturnsOriginalObjects()
+    {
+        // Gateway Worker stub
+        $workerStub = $this->getMockBuilder('\FdlGatewayManager\GatewayWorker')
+                           ->setMethods(array('getAdapterKeyName', 'getEntityName', 'getResultSetName', 'getFeatureName', 'getTableName', 'assemble'))
+                           ->getMock();
+        $workerStub->expects($this->any())
+                   ->method('getAdapterKeyName')
+                   ->will($this->returnValue('Adapterkey'));
+        $workerStub->expects($this->any())
+                   ->method('getEntityName')
+                   ->will($this->returnValue('entityname'));
+        $workerStub->expects($this->any())
+                   ->method('getResultSetName')
+                   ->will($this->returnValue('resultSetName'));
+        $workerStub->expects($this->any())
+                   ->method('getFeatureName')
+                   ->will($this->returnValue('featureName'));
+        $workerStub->expects($this->any())
+                   ->method('getTableName')
+                   ->will($this->returnValue('tableName'));
+        $workerStub->expects($this->any())
+                   ->method('assemble')
+                   ->will($this->returnSelf());
+
+        // zend db feature stub
+        $zendFeature = $this->getMockBuilder('\Zend\Db\TableGateway\Feature\RowGatewayFeature')
+                              ->disableOriginalConstructor()
+                              ->getMock();
+
+        // feature stub
+        $featureStub = $this->getMock('FdlGatewayManager\Feature\RowGatewayFeature', array('setFdlGatewayFactory', 'create', 'getFeature'));
+        $featureStub->expects($this->any())
+                    ->method('setFdlGatewayFactory')
+                    ->will($this->returnSelf());
+        $featureStub->expects($this->any())
+                    ->method('create')
+                    ->will($this->returnSelf());
+        $featureStub->expects($this->any())
+                    ->method('getFeature')
+                    ->will($this->returnValue($zendFeature));
+
+        // zend db result set stub
+        $zendResultSet = $this->getMockBuilder('\Zend\Db\ResultSet\HydratingResultSet')
+                              ->disableOriginalConstructor()
+                              ->getMock();
+
+        // zend db stub
+        $zendAdapter = $this->getMockBuilder('\Zend\Db\Adapter\Adapter')
+                            ->disableOriginalConstructor()
+                            ->getMock();
 
         /**************** test with feature and result return origin objects ****************/
-        $factoryUtilities2 = $this->getMockBuilder('FdlGatewayManager\GatewayFactoryUtilities')
+        $factoryUtilities = $this->getMockBuilder('FdlGatewayManager\GatewayFactoryUtilities')
                                   ->setMethods(array('initAdapter', 'initEntity', 'getTable', 'getTableGatewayProxy', 'initFeature', 'initResultSet', 'setFeature', 'setResultSet', 'setAdapterKey'))
                                   ->getMock();
-        $factoryUtilities2->expects($this->once())
+        $factoryUtilities->expects($this->once())
                           ->method('initAdapter')
                           ->will($this->returnValue($zendAdapter));
-        $factoryUtilities2->expects($this->once())
+        $factoryUtilities->expects($this->once())
                           ->method('initFeature')
                           ->will($this->returnValue($zendFeature));
-        $factoryUtilities2->expects($this->once())
+        $factoryUtilities->expects($this->once())
                           ->method('initResultSet')
                           ->will($this->returnValue($zendResultSet));
-        $factoryUtilities2->expects($this->once())
+        $factoryUtilities->expects($this->once())
                           ->method('setAdapterKey')
                           ->will($this->returnSelf());
 
-        $gatewayFactoryMock2 = new FdlGatewayManager\GatewayFactory($factoryUtilities2);
-        $gatewayFactoryMock2->setWorker($workerMock);
-        $gatewayFactoryMock2->run();
+        $gatewayFactoryMock = $this->GatewayFactory->setMethods(null)->getMock();
+        $serviceManager = Bootstrap::getServiceManager()->setAllowOverride(true);
+        $serviceManager->setService('FdlGatewayFactoryUtilities', $factoryUtilities);
+
+        $gatewayFactoryMock->setServiceLocator($serviceManager);
+        $gatewayFactoryMock->setWorker($workerStub);
+        $gatewayFactoryMock->run();
     }
 
     /**
      * @expectedException FdlGatewayManager\Exception\ClassNotExistException
-     * @group Run
+     * @group RunException
      */
     public function testRunWithNoWorker()
     {
         $gatewayFactoryMock = $this->GatewayFactory
                                    ->setMethods(null)
                                    ->getMock();
+
+        $factoryUtilities = $this->getMockBuilder('FdlGatewayManager\GatewayFactoryUtilities')
+                                  ->setMethods(null)
+                                  ->getMock();
+
+        $serviceManager = Bootstrap::getServiceManager()->setAllowOverride(true);
+        $serviceManager->setService('FdlGatewayFactoryUtilities', $factoryUtilities);
+
+        $gatewayFactoryMock->setServiceLocator($serviceManager);
         $gatewayFactoryMock->run();
     }
 

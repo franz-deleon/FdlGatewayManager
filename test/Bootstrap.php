@@ -34,10 +34,9 @@ class Bootstrap
         $config = array(
             'module_listener_options' => array(
                 'module_paths' => $zf2ModulePaths,
-                'config_glob_paths' => array(__DIR__ . '/../../../config/autoload/{,*.}{global,staging,test,local}.php')
             ),
             'modules' => array(
-                'FdlGatewayManager',
+                static::getModuleName(),
             )
         );
 
@@ -45,12 +44,22 @@ class Bootstrap
         static::$serviceManager = $moduleloader->getServiceManager();
     }
 
+
+    public static function chroot()
+    {
+        $rootPath = dirname(static::findParentPath('module'));
+        chdir($rootPath);
+    }
+
+    /**
+     * @return \Zend\ServiceManager\ServiceManager
+     */
     public static function getServiceManager()
     {
         return static::$serviceManager;
     }
 
-    public static function getModuleName()
+    protected static function getModuleName()
     {
         $module = '';
         if (defined('self::MODULE')) {

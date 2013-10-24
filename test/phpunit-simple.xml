@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="Bootstrap.php" colors="true">
+    <testsuites>
+        <testsuite name="FdlGatewayManager">
+            <directory>../../../../../test-reports/FdlGatewayManager</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+	  <whitelist processUncoveredFilesFromWhitelist="true">
+	      <directory suffix=".php">../../FdlGatewayManager</directory>
+	      <exclude>
+              <directory suffix=".php">../test</directory>
+          </exclude>
+	  </whitelist>
+	</filter>
+</phpunit>
