@@ -13,7 +13,7 @@ abstract class AbstractResultSet implements ResultSetInterface
     /**
      * @return GatewayFactory;
      */
-    public function getFdlGatewayFactory()
+    public function getGatewayFactory()
     {
         return $this->gatewayFactory;
     }
@@ -21,7 +21,7 @@ abstract class AbstractResultSet implements ResultSetInterface
     /**
      * @param GatewayFactory $factory;
      */
-    public function setFdlGatewayFactory(GatewayFactory $factory)
+    public function setGatewayFactory(GatewayFactory $factory)
     {
         $this->gatewayFactory = $factory;
         return $this;

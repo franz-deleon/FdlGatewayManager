@@ -11,18 +11,18 @@ class RowGatewayFeature extends AbstractFeature
      */
     public function create()
     {
-        $table = $this->getFdlGatewayFactory()->getTableGatewayTarget();
+        $table = $this->getFdlGatewayFactory()->getTableGatewayProxy();
         if (isset($table)) {
             $table = new $table();
             if (property_exists($table, 'primaryKey')) {
-                $key = $table->primaryKey;
+                $primaryKey = $table->primaryKey;
             } elseif (is_callable(array($table, 'getPrimaryKey')) && $table->getPrimaryKey() !== null) {
-                $key = $table->getPrimaryKey();
+                $primaryKey = $table->getPrimaryKey();
             }
         }
 
-        if (isset($key)) {
-            $this->feature = new Feature\RowGatewayFeature($key);
+        if (isset($primaryKey)) {
+            $this->feature = new Feature\RowGatewayFeature($primaryKey);
         } else {
             $this->feature = new Feature\RowGatewayFeature();
         }

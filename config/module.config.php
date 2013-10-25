@@ -1,11 +1,18 @@
 <?php
 return array(
     'service_manager' => array(
+        'invokables' => array(
+            'FdlGatewayFactoryAdapterKeyContainer' => 'FdlGatewayManager\GatewayFactoryAdapterKeyContainer',
+        ),
         'factories' => array(
             'FdlGatewayPlugin' => 'FdlGatewayManager\Service\FdlGatewayPluginFactory',
+            'FdlEntityFactory' => 'FdlGatewayManager\Factory\EntityServiceFactory',
         ),
         'abstract_factories' => array(
-            'FdlGatewayManager\Factory\TableAbstractFactory',
+            //'FdlGatewayManager\Factory\TableAbstractFactory',
+            'FdlGatewayManager\Factory\AdapterServiceAbstractFactory',
+            'FdlGatewayManager\Factory\FeaturesServiceAbstractFactory',
+            'FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory',
         ),
     ),
     'fdl_gateway_manager_config' => array(
@@ -19,23 +26,27 @@ return array(
          *
          * Example:
          * <code>
-         *     factories => array('FdlTableGateway\Table' => function ($sm) {})
+         *     factories => array(
+         *         'FdlTableGateway\Table' => function ($sm) {},
+         *     )
          * </code>
          */
         'table_gateway' => array(
             'table'    => 'FdlTableGateway\Table',
             'adapter'  => 'FdlTableGateway\Adapter',
             'features' => 'FdlTableGateway\Features',
-            'result_set_prototype' => 'FdlTableGateway\ResultSetPrototype',
             'sql'      => 'FdlTableGateway\Sql',
+            'result_set_prototype' => 'FdlTableGateway\ResultSetPrototype',
         ),
         /**
          * These is where to store the table and entity mapping classes.
-         * Values are namespaces
+         * Values are namespaces.
+         *
+         * IMPORTANT: these are to be filled in the implementing module
          */
         'asset_location' => array(
-            'tables'   => '', // to be filled in implementing module
-            'entities' => '', // to be filled in implementing module
+            'tables'   => '',
+            'entities' => '',
         ),
         /**
          * Default classes to use for TableGateways and Adapter

@@ -15,5 +15,5 @@ interface ResultSetInterface
      * @param void
      * @return \Zend\Db\ResultSet\AbstractResultSet
      */
-    public function getResultSet();
+    public function getResultSetPrototype();
 }

@@ -2,6 +2,7 @@
 namespace FdlGatewayManager;
 
 use Zend\Db;
+use Zend\EventManager;
 
 class GatewayFactory extends AbstractServiceLocatorAware
 {
@@ -23,7 +24,7 @@ class GatewayFactory extends AbstractServiceLocatorAware
     /**
      * @var \FdlGatewayManager\ResultSet\AbstractResultSet
      */
-    protected $resultSet;
+    protected $resultSetPrototype;
 
     /**
      * Tablename
@@ -55,26 +56,35 @@ class GatewayFactory extends AbstractServiceLocatorAware
     {
         $worker = $this->getWorker();
         $utilities = $this->getServiceLocator()->get('FdlGatewayFactoryUtilities');
+        $event = $this->getServiceLocator()->get('FdlGatewayFactoryEvent');
+        $eventManager = $this->getEventManager()->setIdentifiers(array(__CLASS__, uniqid()));
 
         if (isset($worker) && $worker instanceof GatewayWorker) {
+            // add the adapter key to the event
             $adapterKeyName = $worker->getAdapterKeyName();
+            $event->setAdapterKey($adapterKeyName);
+
             $entityName     = $worker->getEntityName();
             $resultSetName  = $worker->getResultSetName();
             $featureName    = $worker->getFeatureName();
             $tableName      = $worker->getTableName();
             $tableGatewayName = $worker->getTableGatewayName();
 
-            $adapterFactory = $this->getServiceLocator()->get('FdlAdapterFactory');
-            $adapterFactory->setAdapterKey($adapterKeyName);
-            $adapter = $adapterFactory->createAdapter();
+            // load the adapter
+            $eventManager->trigger(GatewayFactoryEvent::LOAD_ADAPTER, $this, $event);
 
-            $utilities->setAdapterKey($adapterKeyName);
-            $entity  = $utilities->initEntity($entityName, $adapter);
+            // load the features
+            $eventManager->trigger(GatewayFactoryEvent::LOAD_FEATURES, $this, $event);
 
-            $table   = $utilities->getTable($tableName, $entity, $adapter);
+            // load the result set prototype
+            $eventManager->trigger(GatewayFactoryEvent::LOAD_RESULT_SET_PROTOTYPE, $this, $event);
+
+                        die;
+
+                        $table   = $utilities->getTable($tableName, $entity, $adapter);
             $tableGatewayProxy = $utilities->getTableGatewayProxy($tableGatewayName, $entity);
 
-            $feature   = $utilities->initFeature($featureName);
+
             $resultSet = $utilities->initResultSet($resultSetName);
 
             $this->setAdapter($adapter);
@@ -82,23 +92,14 @@ class GatewayFactory extends AbstractServiceLocatorAware
             $this->setTable($table);
             $this->setTableGatewayProxy($tableGatewayProxy);
 
-            // initialize feature
-            if (isset($feature)) {
-                if ($feature instanceof Feature\FeatureInterface) {
-                    $feature->setFdlGatewayFactory($this)->create();
-                    $this->setFeature($feature->getFeature());
-                } else {
-                    $this->setFeature($feature);
-                }
-            }
 
             // initialize resultset
             if (isset($resultSet)) {
                 if ($resultSet instanceof ResultSet\ResultSetInterface) {
                     $resultSet->setFdlGatewayFactory($this)->create();
-                    $this->setResultSet($resultSet->getResultSet());
+                    $this->setResultSetProtype($resultSet->getResultSet());
                 } else {
-                    $this->setResultSet($resultSet);
+                    $this->setResultSetProtype($resultSet);
                 }
             }
 
@@ -226,17 +227,17 @@ class GatewayFactory extends AbstractServiceLocatorAware
     /**
      * @return \FdlGatewayManager\ResultSet\AbstractResultSet
      */
-    public function getResultSet()
+    public function getResultSetPrototype()
     {
-        return $this->resultSet;
+        return $this->resultSetPrototype;
     }
 
     /**
-     * @param Db\ResultSet\ResultSetInterface $resultSet
+     * @param Db\ResultSet\ResultSetInterface $resultSetPrototype
      */
-    public function setResultSet(Db\ResultSet\ResultSetInterface $resultSet)
+    public function setResultSetPrototype(Db\ResultSet\ResultSetInterface $resultSetPrototype)
     {
-        $this->resultSet = $resultSet;
+        $this->resultSetPrototype = $resultSetPrototype;
     }
 
     /**

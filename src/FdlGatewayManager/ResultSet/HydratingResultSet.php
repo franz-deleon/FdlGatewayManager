@@ -10,21 +10,21 @@ class HydratingResultSet extends AbstractResultSet
     /**
      * @var \Zend\Db\ResultSet\HydratingResultSet
      */
-    protected $resultSet;
+    protected $resultSetPrototype;
 
     public function create()
     {
-        $this->resultSet = new ResultSet\HydratingResultSet(
+        $this->resultSetPrototype = new ResultSet\HydratingResultSet(
             new ClassMethods(true),
-            $this->getFdlGatewayFactory()->getEntity()
+            $this->getGatewayFactory()->getEntity()
         );
     }
 
     /**
      * @return \Zend\Db\ResultSet\HydratingResultSet
      */
-    public function getResultSet()
+    public function getResultSetPrototype()
     {
-        return $this->resultSet;
+        return $this->resultSetPrototype;
     }
 }

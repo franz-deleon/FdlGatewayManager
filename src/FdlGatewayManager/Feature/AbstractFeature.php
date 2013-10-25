@@ -28,7 +28,7 @@ abstract class AbstractFeature implements FeatureInterface
     /**
      * @return GatewayFactory;
      */
-    public function getFdlGatewayFactory()
+    public function getGatewayFactory()
     {
         return $this->gatewayFactory;
     }
@@ -36,7 +36,7 @@ abstract class AbstractFeature implements FeatureInterface
     /**
      * @param GatewayFactory $factory;
      */
-    public function setFdlGatewayFactory(GatewayFactory $factory)
+    public function setGatewayFactory(GatewayFactory $factory)
     {
         $this->gatewayFactory = $factory;
         return $this;

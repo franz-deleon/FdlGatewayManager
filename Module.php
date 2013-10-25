@@ -40,6 +40,7 @@ class Module
                 'FdlGatewayManager'  => __NAMESPACE__ . '\GatewayManager',
                 'FdlGatewayWorker'   => __NAMESPACE__ . '\GatewayWorker',
                 'FdlGatewayFactory'  => __NAMESPACE__ . '\GatewayFactory',
+                'FdlGatewayFactoryEvent'  => __NAMESPACE__ . '\GatewayFactoryEvent',
                 'FdlGatewayFactoryUtilities' => __NAMESPACE__ . '\GatewayFactoryUtilities',
             ),
             'factories' => array(

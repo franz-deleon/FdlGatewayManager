@@ -2,9 +2,18 @@
 namespace FdlGatewayManager;
 
 use Zend\ServiceManager;
+use Zend\EventManager;
 
-abstract class AbstractServiceLocatorAware implements ServiceManager\ServiceLocatorAwareInterface
+abstract class AbstractServiceLocatorAware implements ServiceManager\ServiceLocatorAwareInterface, EventManager\EventManagerAwareInterface
 {
+    /**
+     * @var Zend\EventManager\EventManager
+     */
+    protected $eventManager;
+
+    /**
+     * @var Zend\ServiceManager\ServiceManager
+     */
     protected $serviceLocator;
 
     /**
@@ -25,5 +34,26 @@ abstract class AbstractServiceLocatorAware implements ServiceManager\ServiceLoca
     public function getServiceLocator()
     {
         return $this->serviceLocator;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
+     */
+    public function getEventManager()
+    {
+        return $this->eventManager;
+    }
+
+    /**
+     * Inject an EventManager instance
+     *
+     * @param  EventManagerInterface $eventManager
+     * @return void
+     */
+    public function setEventManager(EventManager\EventManagerInterface $eventManager)
+    {
+        $this->eventManager = $eventManager;
+        return $this;
     }
 }
