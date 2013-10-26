@@ -7,7 +7,7 @@ interface WorkerInterface
      * Retrieve the adapter name
      * @return string
      */
-    public function getAdapterKeyName();
+    public function getAdapterKey();
 
     /**
      * Return the table name
@@ -25,5 +25,5 @@ interface WorkerInterface
      * Retrieve the result ser name
      * @return string
      */
-    public function getResultSetName();
+    public function getResultSetPrototypeName();
 }

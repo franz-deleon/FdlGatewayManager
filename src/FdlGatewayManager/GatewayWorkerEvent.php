@@ -3,15 +3,15 @@ namespace FdlGatewayManager;
 
 use Zend\EventManager\Event;
 
-class GatewayFactoryEvent extends Event
+class GatewayWorkerEvent extends Event implements WorkerInterface
 {
     /**
-     * Gateway events
+     * Gateway worker events
      */
     const INIT_ADAPTER  = 'init.Adapter';
     const LOAD_FEATURES = 'load.Features';
     const LOAD_RESULT_SET_PROTOTYPE = 'load.ResultSetPrototype';
-    const LOAD_SQL = 'load.Sql';
+    const LOAD_SQL      = 'load.Sql';
     const RESOLVE_TABLE = 'resolve.Table';
 
     /**
@@ -109,9 +109,9 @@ class GatewayFactoryEvent extends Event
      * @param string
      * @return GatewayFactoryEvent
      */
-    public function setTableName($table)
+    public function setTableName($tableName)
     {
-        $this->setParam('table-name');
+        $this->setParam('table-name', $tableName);
         return $this;
     }
 
@@ -121,7 +121,7 @@ class GatewayFactoryEvent extends Event
      */
     public function getTableGatewayName()
     {
-        return $this->tableGatewayName;
+        return $this->getParam('table-gateway-name');
     }
 
     /**
@@ -129,7 +129,7 @@ class GatewayFactoryEvent extends Event
      */
     public function setTableGatewayName($tableGatewayName)
     {
-        $this->tableGatewayName = $tableGatewayName;
+        $this->setParam('table-gateway-name', $tableGatewayName);
         return $this;
     }
 }

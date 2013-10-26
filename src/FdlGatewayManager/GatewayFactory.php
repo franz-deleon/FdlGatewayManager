@@ -54,36 +54,26 @@ class GatewayFactory extends AbstractServiceLocatorAware
      */
     public function run()
     {
-        $worker = $this->getWorker();
         $utilities = $this->getServiceLocator()->get('FdlGatewayFactoryUtilities');
-        $event = $this->getServiceLocator()->get('FdlGatewayFactoryEvent');
+        $workerEvent = $this->getServiceLocator()->get('FdlGatewayWorkerEvent');
         $eventManager = $this->getEventManager()->setIdentifiers(array(__CLASS__, uniqid()));
 
-        if (isset($worker) && $worker instanceof GatewayWorker) {
-            // add the adapter key to the event
-            $adapterKeyName = $worker->getAdapterKeyName();
-            $event->setAdapterKey($adapterKeyName);
-
-            $entityName     = $worker->getEntityName();
-            $resultSetName  = $worker->getResultSetName();
-            $featureName    = $worker->getFeatureName();
-            $tableName      = $worker->getTableName();
-            $tableGatewayName = $worker->getTableGatewayName();
+        if (isset($workerEvent) && $workerEvent instanceof WorkerInterface) {
 
             // load the adapter
-            $eventManager->trigger(GatewayFactoryEvent::INIT_ADAPTER, $this, $event);
+            $eventManager->trigger(GatewayWorkerEvent::INIT_ADAPTER, $this, $workerEvent);
 
             // resolve the table class
-            $eventManager->trigger(GatewayFactoryEvent::RESOLVE_TABLE, $this, $event);
+            //$eventManager->trigger(GatewayWorkerEvent::RESOLVE_TABLE, $this, $workerEvent);
 
             // load the features
-            $eventManager->trigger(GatewayFactoryEvent::LOAD_FEATURES, $this, $event);
+            $eventManager->trigger(GatewayWorkerEvent::LOAD_FEATURES, $this, $workerEvent);
 
             // load the result set prototype
-            $eventManager->trigger(GatewayFactoryEvent::LOAD_RESULT_SET_PROTOTYPE, $this, $event);
+            $eventManager->trigger(GatewayWorkerEvent::LOAD_RESULT_SET_PROTOTYPE, $this, $workerEvent);
 
             // load the sql
-            $eventManager->trigger(GatewayFactoryEvent::LOAD_SQL, $this, $event);
+            $eventManager->trigger(GatewayWorkerEvent::LOAD_SQL, $this, $workerEvent);
 
                         die;
 

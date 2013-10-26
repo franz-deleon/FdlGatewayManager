@@ -7,7 +7,7 @@ return array(
         'factories' => array(
             'FdlGatewayPlugin' => 'FdlGatewayManager\Service\FdlGatewayPluginFactory',
             'FdlEntityFactory' => 'FdlGatewayManager\Factory\EntityServiceFactory',
-            'FdlTableFactory'  => 'FdlGatewayManager\Factory\TableServiceFactory',
+            'FdlTableServiceFactory'  => 'FdlGatewayManager\Factory\TableServiceFactory',
         ),
         'abstract_factories' => array(
             //'FdlGatewayManager\Factory\TableAbstractFactory',
@@ -33,7 +33,6 @@ return array(
          * </code>
          */
         'table_gateway' => array(
-            'table'    => 'FdlTableGateway\Table',
             'adapter'  => 'FdlTableGateway\Adapter',
             'features' => 'FdlTableGateway\Features',
             'sql'      => 'FdlTableGateway\Sql',

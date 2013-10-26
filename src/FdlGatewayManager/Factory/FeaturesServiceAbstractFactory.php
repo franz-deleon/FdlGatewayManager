@@ -1,6 +1,7 @@
 <?php
 namespace FdlGatewayManager\Factory;
 
+use FdlGatewayManager\Exception;
 use Zend\Filter\Word\UnderscoreToCamelCase;
 use Zend\ServiceManager;
 
@@ -33,7 +34,7 @@ class FeaturesServiceAbstractFactory implements ServiceManager\AbstractFactoryIn
     public function createServiceWithName(ServiceManager\ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $config  = $serviceLocator->get('config');
-        $featureName = $serviceLocator->get('FdlGatewayFactoryEvent')->getFeatureName();
+        $featureName = $serviceLocator->get('FdlGatewayWorkerEvent')->getFeatureName();
 
         if (isset($featureName)) {
             if (class_exists($featureName)) {

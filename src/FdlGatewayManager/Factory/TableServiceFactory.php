@@ -1,7 +1,6 @@
 <?php
 namespace FdlGatewayManager\Factory;
 
-use FdlGatewayManager\Exception;
 use Zend\ServiceManager;
 
 class TableServiceFactory implements ServiceManager\FactoryInterface
@@ -15,7 +14,7 @@ class TableServiceFactory implements ServiceManager\FactoryInterface
     public function createService(ServiceManager\ServiceLocatorInterface $serviceLocator)
     {
         $config  = $serviceLocator->get('config');
-        $event = $serviceLocator->get('FdlGatewayFactoryEvent');
+        $event = $serviceLocator->get('FdlGatewayWorkerEvent');
         $adapterKeyName = $event->getAdapterKey();
         $tableName      = $event->getTableName();
         $assetLocation  = $config['fdl_gateway_manager_config']['asset_location'];
@@ -38,12 +37,12 @@ class TableServiceFactory implements ServiceManager\FactoryInterface
         if (class_exists($tableClass)) {
             return new $tableClass();
         } else {
-            $tableClass = $tableClass . 'Table';
+            $tableClass = $tableClass . 'Tables';
             if (class_exists($tableClass)) {
                 return $tableClass();
             }
 
-            throw new Exception\ClassNotExistException('Table class: ' . $tableClass . ' does not exist.');
+            return new \stdClass();
         }
     }
 }

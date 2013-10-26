@@ -1,7 +1,7 @@
 <?php
 namespace FdlGatewayManager\Factory;
 
-use Zend\Db;
+use FdlGatewayManager\Exception;
 use Zend\ServiceManager;
 
 class AdapterServiceAbstractFactory implements ServiceManager\AbstractFactoryInterface
@@ -144,7 +144,7 @@ class AdapterServiceAbstractFactory implements ServiceManager\AbstractFactoryInt
     public function getAdapterConfig()
     {
         $dbConfig = $this->getDbConfig();
-        $adapterKeyName = $this->getServiceLocator()->get('FdlGatewayFactoryEvent')->getAdapterKey();
+        $adapterKeyName = $this->getServiceLocator()->get('FdlGatewayWorkerEvent')->getAdapterKey();
 
         if (!empty($adapterKeyName)) {
             if (is_array($dbConfig[$adapterKeyName])) {
