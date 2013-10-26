@@ -7,6 +7,7 @@ return array(
         'factories' => array(
             'FdlGatewayPlugin' => 'FdlGatewayManager\Service\FdlGatewayPluginFactory',
             'FdlEntityFactory' => 'FdlGatewayManager\Factory\EntityServiceFactory',
+            'FdlTableFactory'  => 'FdlGatewayManager\Factory\TableServiceFactory',
         ),
         'abstract_factories' => array(
             //'FdlGatewayManager\Factory\TableAbstractFactory',

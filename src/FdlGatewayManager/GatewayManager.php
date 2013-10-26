@@ -61,7 +61,7 @@ class GatewayManager extends AbstractServiceLocatorAware
 
     public function load()
     {
-        $this->getFactory()->getEventManager()->attach(GatewayFactoryEvent::LOAD_ADAPTER, function ($e) {
+        $this->getFactory()->getEventManager()->attach(GatewayFactoryEvent::INIT_ADAPTER, function ($e) {
             $gatewayFactory = $e->getTarget();
             $adapterKey     = $e->getAdapterKey() ?: 'default';
             $serviceManager = $gatewayFactory->getServiceLocator();
@@ -79,12 +79,21 @@ class GatewayManager extends AbstractServiceLocatorAware
             $gatewayFactory->setAdapter($adapter);
         });
 
-        $this->getFactory()->getEventManager()->attach(GatewayFactoryEvent::LOAD_ADAPTER, function ($e) {
+        $this->getFactory()->getEventManager()->attach(GatewayFactoryEvent::INIT_ADAPTER, function ($e) {
             $gatewayFactory = $e->getTarget();
             $serviceManager = $gatewayFactory->getServiceLocator();
 
             $entity = $serviceManager->get('FdlEntityFactory');
             $gatewayFactory->setEntity($entity);
+        });
+
+        $this->getFactory()->getEventManager()->attach(GatewayFactoryEvent::RESOLVE_TABLE, function ($e) {
+            $gatewayFactory = $e->getTarget();
+            $serviceManager = $gatewayFactory->getServiceLocator();
+            $config         = $serviceManager->get('config');
+
+            $table = $serviceManager->get($config['fdl_gateway_manager_config']['table_gateway']['table']);
+
         });
 
         $this->getFactory()->getEventManager()->attach(GatewayFactoryEvent::LOAD_FEATURES, function ($e) {
@@ -111,7 +120,7 @@ class GatewayManager extends AbstractServiceLocatorAware
             $serviceManager = $gatewayFactory->getServiceLocator();
             $config         = $serviceManager->get('config');
 
-            // checks if the feature class implements FeatureInterface
+            // checks if the result set prototype class implements FeatureInterface
             $resultSetPrototype = $serviceManager->get($config['fdl_gateway_manager_config']['table_gateway']['result_set_prototype']);
             if ($resultSetPrototype instanceof \FdlGatewayManager\ResultSet\ResultSetInterface) {
                 $resultSetPrototype->setGatewayFactory($gatewayFactory)

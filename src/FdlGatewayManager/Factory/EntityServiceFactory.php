@@ -18,18 +18,19 @@ class EntityServiceFactory implements ServiceManager\FactoryInterface
         $event = $serviceLocator->get('FdlGatewayFactoryEvent');
         $adapterKeyName = $event->getAdapterKey();
         $entityName     = $event->getEntityName();
+        $assetLocation  = $config['fdl_gateway_manager_config']['asset_location'];
 
         if (null !== $adapterKeyName) {
-            if (isset($config['fdl_gateway_manager_config']['asset_location'][$adapterKeyName]['entities'])) {
-                $entityNamespace = $config['fdl_gateway_manager_config']['asset_location'][$adapterKeyName]['entities'];
+            if (isset($assetLocation[$adapterKeyName]['entities'])) {
+                $entityNamespace = $assetLocation[$adapterKeyName]['entities'];
             }
         }
 
         if (!isset($entityNamespace)) {
-            if (isset($config['fdl_gateway_manager_config']['asset_location']['default']['entities'])) {
-                $entityNamespace = $config['fdl_gateway_manager_config']['asset_location']['default']['entities'];
-            } elseif (isset($config['fdl_gateway_manager_config']['asset_location']['entities'])) {
-                $entityNamespace = $config['fdl_gateway_manager_config']['asset_location']['entities'];
+            if (isset($assetLocation['default']['entities'])) {
+                $entityNamespace = $assetLocation['default']['entities'];
+            } elseif (isset($assetLocation['entities'])) {
+                $entityNamespace = $assetLocation['entities'];
             }
         }
 

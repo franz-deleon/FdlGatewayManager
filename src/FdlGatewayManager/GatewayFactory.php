@@ -71,13 +71,19 @@ class GatewayFactory extends AbstractServiceLocatorAware
             $tableGatewayName = $worker->getTableGatewayName();
 
             // load the adapter
-            $eventManager->trigger(GatewayFactoryEvent::LOAD_ADAPTER, $this, $event);
+            $eventManager->trigger(GatewayFactoryEvent::INIT_ADAPTER, $this, $event);
+
+            // resolve the table class
+            $eventManager->trigger(GatewayFactoryEvent::RESOLVE_TABLE, $this, $event);
 
             // load the features
             $eventManager->trigger(GatewayFactoryEvent::LOAD_FEATURES, $this, $event);
 
             // load the result set prototype
             $eventManager->trigger(GatewayFactoryEvent::LOAD_RESULT_SET_PROTOTYPE, $this, $event);
+
+            // load the sql
+            $eventManager->trigger(GatewayFactoryEvent::LOAD_SQL, $this, $event);
 
                         die;
 

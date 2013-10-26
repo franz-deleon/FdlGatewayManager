@@ -8,10 +8,10 @@ class GatewayFactoryEvent extends Event
     /**
      * Gateway events
      */
-    const LOAD_ADAPTER  = 'load.Adapter';
+    const INIT_ADAPTER  = 'init.Adapter';
     const LOAD_FEATURES = 'load.Features';
     const LOAD_RESULT_SET_PROTOTYPE = 'load.ResultSetPrototype';
-    const LOAD_INIT_SQL = 'load.Sql';
+    const LOAD_SQL = 'load.Sql';
     const RESOLVE_TABLE = 'resolve.Table';
 
     /**
@@ -94,6 +94,42 @@ class GatewayFactoryEvent extends Event
     public function setResultSetPrototypeName($resultSetPrototype)
     {
         $this->setParam('result-set-protype-name', $resultSetPrototype);
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTableName()
+    {
+        return $this->getParam('table-name');
+    }
+
+    /**
+     * @param string
+     * @return GatewayFactoryEvent
+     */
+    public function setTableName($table)
+    {
+        $this->setParam('table-name');
+        return $this;
+    }
+
+    /**
+     * @param string
+     * @return GatewayFactoryEvent
+     */
+    public function getTableGatewayName()
+    {
+        return $this->tableGatewayName;
+    }
+
+    /**
+     * @param string $tableGatewayName
+     */
+    public function setTableGatewayName($tableGatewayName)
+    {
+        $this->tableGatewayName = $tableGatewayName;
         return $this;
     }
 }
