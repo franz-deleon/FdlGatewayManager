@@ -2,6 +2,7 @@
 namespace FdlGatewayManager\Factory;
 
 use FdlGatewayManager\Exception;
+use Zend\Db\Adapter\AdapterInterface;
 use Zend\ServiceManager;
 
 class AdapterServiceAbstractFactory implements ServiceManager\AbstractFactoryInterface
@@ -40,12 +41,22 @@ class AdapterServiceAbstractFactory implements ServiceManager\AbstractFactoryInt
         $config  = $serviceLocator->get('config');
         $adapter = $config['fdl_gateway_manager_config']['adapter'];
 
-        return new $adapter(
+        if (!class_exists($adapter)) {
+            throw new Exception\ErrorException('Adapter class: "' . $adapter . '" does not exist');
+        }
+
+        $adapter = new $adapter(
             $this->getDriverParams(),
             $this->getPlatform(),
             $this->getQueryResultPrototype(),
             $this->getProfiler()
         );
+
+        if (!$adapter instanceof AdapterInterface) {
+            throw new Exception\ErrorException('Adapter class: "' . $adapter . '" is not of AdapterInterface');
+        }
+
+        return $adapter;
     }
 
     /**
@@ -183,11 +194,11 @@ class AdapterServiceAbstractFactory implements ServiceManager\AbstractFactoryInt
                 case isset($config['fdl_database']):
                     $this->dbConfig = $config['fdl_database'];
                     break;
-                case isset($config['database']):
-                    $this->dbConfig = $config['database'];
-                    break;
                 case isset($config['db']):
                     $this->dbConfig = $config['db'];
+                    break;
+                case isset($config['database']):
+                    $this->dbConfig = $config['database'];
                     break;
             }
 

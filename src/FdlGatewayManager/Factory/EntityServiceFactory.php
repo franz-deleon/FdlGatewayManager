@@ -1,7 +1,6 @@
 <?php
 namespace FdlGatewayManager\Factory;
 
-use FdlGatewayManager\Exception;
 use Zend\ServiceManager;
 
 class EntityServiceFactory implements ServiceManager\FactoryInterface
@@ -42,8 +41,8 @@ class EntityServiceFactory implements ServiceManager\FactoryInterface
             if (class_exists($entity)) {
                 return $entity();
             }
-
-            throw new Exception\ClassNotExistException('Entity ' . $entity . ' does not exist.');
         }
+
+        return new \stdClass();
     }
 }

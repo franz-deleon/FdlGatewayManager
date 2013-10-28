@@ -1,27 +1,28 @@
 <?php
-namespace FdlGatewayManager\ResultSet;
+namespace FdlGatewayManager\Sql;
 
 use FdlGatewayManager\GatewayFactory;
 
-abstract class AbstractResultSet implements ResultSetInterface
+abstract class AbstractSql implements SqlInterface
 {
+    /**
+     * @var \Zend\Db\Sql\SqlInterface
+     */
+    protected $sql;
+
     /**
      * @var GatewayFactory
      */
     protected $gatewayFactory;
 
     /**
-     * @var \Zend\Db\ResultSet\ResultSetInterface
+     * Retrieve the created feature
+     * @param void
+     * @return \Zend\Db\Sql\SqlInterface
      */
-    protected $resultSetPrototype;
-
-    /**
-     * (non-PHPdoc)
-     * @see \FdlGatewayManager\ResultSet\ResultSetInterface::getResultSetPrototype()
-     */
-    public function getResultSetPrototype()
+    public function getSql()
     {
-        return $this->resultSetPrototype;
+        return $this->sql;
     }
 
     /**

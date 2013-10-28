@@ -2,12 +2,11 @@
 namespace FdlGatewayManager;
 
 use Zend\Db;
-use Zend\EventManager;
 
 class GatewayFactory extends AbstractServiceLocatorAware
 {
     /**
-     * @var \Zend\Db\Adapter\Adapter
+     * @var \Zend\Db\Adapter\AdapterInterface
      */
     protected $adapter;
 
@@ -17,14 +16,19 @@ class GatewayFactory extends AbstractServiceLocatorAware
     protected $entity;
 
     /**
-     * @var \FdlGatewayManager\Feature\AbstractFeature
+     * @var \Zend\Db\Feature\AbstractFeature|Feature\FeatureSet|Feature\AbstractFeature[] $features
      */
     protected $feature;
 
     /**
-     * @var \FdlGatewayManager\ResultSet\AbstractResultSet
+     * @var \Zend\Db\ResultSet\ResultSetInterface|ResultSet\ResultSetInterface
      */
     protected $resultSetPrototype;
+
+    /**
+     * @var \Zend\Db\Sql\SqlInterface
+     */
+    protected $sql;
 
     /**
      * Tablename
@@ -38,14 +42,9 @@ class GatewayFactory extends AbstractServiceLocatorAware
     protected $tableGateway;
 
     /**
-     * @var string
-     */
-    protected $tableGatewayProxy;
-
-    /**
      * @var \FdlGatewayManager\GatewayWorker
      */
-    protected $gatewayWorker;
+    protected $gatewayWorkerEvent;
 
     /**
      * Run the factory
@@ -54,17 +53,18 @@ class GatewayFactory extends AbstractServiceLocatorAware
      */
     public function run()
     {
-        $utilities = $this->getServiceLocator()->get('FdlGatewayFactoryUtilities');
         $workerEvent = $this->getServiceLocator()->get('FdlGatewayWorkerEvent');
-        $eventManager = $this->getEventManager()->setIdentifiers(array(__CLASS__, uniqid()));
+        $eventManager = $this->getEventManager();
 
         if (isset($workerEvent) && $workerEvent instanceof WorkerInterface) {
-
             // load the adapter
             $eventManager->trigger(GatewayWorkerEvent::INIT_ADAPTER, $this, $workerEvent);
 
-            // resolve the table class
-            //$eventManager->trigger(GatewayWorkerEvent::RESOLVE_TABLE, $this, $workerEvent);
+            // resolve the table name
+            $eventManager->trigger(GatewayWorkerEvent::RESOLVE_TABLE_NAME, $this, $workerEvent);
+
+            // resolve the table gateway proxy class
+            $eventManager->trigger(GatewayWorkerEvent::RESOLVE_TABLE_GATEWAY, $this, $workerEvent);
 
             // load the features
             $eventManager->trigger(GatewayWorkerEvent::LOAD_FEATURES, $this, $workerEvent);
@@ -75,33 +75,10 @@ class GatewayFactory extends AbstractServiceLocatorAware
             // load the sql
             $eventManager->trigger(GatewayWorkerEvent::LOAD_SQL, $this, $workerEvent);
 
-                        die;
-
-                        $table   = $utilities->getTable($tableName, $entity, $adapter);
-            $tableGatewayProxy = $utilities->getTableGatewayProxy($tableGatewayName, $entity);
-
-
-            $resultSet = $utilities->initResultSet($resultSetName);
-
-            $this->setAdapter($adapter);
-            $this->setEntity($entity);
-            $this->setTable($table);
-            $this->setTableGatewayProxy($tableGatewayProxy);
-
-
-            // initialize resultset
-            if (isset($resultSet)) {
-                if ($resultSet instanceof ResultSet\ResultSetInterface) {
-                    $resultSet->setFdlGatewayFactory($this)->create();
-                    $this->setResultSetProtype($resultSet->getResultSet());
-                } else {
-                    $this->setResultSetProtype($resultSet);
-                }
-            }
-
-            $worker->assemble($this);
+            // Post initialization. Create the actual TableGateway
+            $eventManager->trigger(GatewayWorkerEvent::POST_INIT_TABLE_GATEWAY, $this, $workerEvent);
         } else {
-            throw new Exception\ClassNotExistException('There is no worker defined');
+            throw new Exception\ClassNotExistException('There is no worker event');
         }
     }
 
@@ -129,38 +106,21 @@ class GatewayFactory extends AbstractServiceLocatorAware
     }
 
     /**
-     * @return string
-     */
-    public function getTableGatewayProxy()
-    {
-        return $this->tableGatewayProxy;
-    }
-
-    /**
-     * @param string $tableGatewayString
-     */
-    public function setTableGatewayProxy($tableGatewayProxy)
-    {
-        $this->tableGatewayProxy = $tableGatewayProxy;
-        return $this;
-    }
-
-    /**
      * Returns the gateway worker
      * @return \FdlGatewayManager\GatewayWorker
      */
-    public function getWorker()
+    public function getWorkerEvent()
     {
-        return $this->gatewayWorker;
+        return $this->gatewayWorkerEvent;
     }
 
     /**
-     * @param GatewayWorker $worker
+     * @param GatewayWorker $workerEvent
      * @return \FdlGatewayManager\GatewayFactory
      */
-    public function setWorker(GatewayWorker $worker = null)
+    public function setWorkerEvent(GatewayWorkerEvent $workerEvent = null)
     {
-        $this->gatewayWorker = $worker;
+        $this->gatewayWorkerEvent = $workerEvent;
         return $this;
     }
 
@@ -214,7 +174,7 @@ class GatewayFactory extends AbstractServiceLocatorAware
      * @param Db\TableGateway\Feature\AbstractFeature $feature
      * @return \FdlGatewayManager\GatewayFactory
      */
-    public function setFeature(Db\TableGateway\Feature\AbstractFeature $feature)
+    public function setFeature($feature)
     {
         $this->feature = $feature;
         return $this;
@@ -234,6 +194,25 @@ class GatewayFactory extends AbstractServiceLocatorAware
     public function setResultSetPrototype(Db\ResultSet\ResultSetInterface $resultSetPrototype)
     {
         $this->resultSetPrototype = $resultSetPrototype;
+        return $this;
+    }
+
+    /**
+     * @return \Zend\Db\Sql\SqlInterface
+     */
+    public function getSql()
+    {
+        return $this->sql;
+    }
+
+    /**
+     * @param Db\Sql\SqlInterface $sql
+     * @return \FdlGatewayManager\GatewayFactory
+     */
+    public function setSql(Db\Sql\SqlInterface $sql)
+    {
+        $this->sql = $sql;
+        return $this;
     }
 
     /**
@@ -250,6 +229,7 @@ class GatewayFactory extends AbstractServiceLocatorAware
     public function setTable($table)
     {
         $this->table = $table;
+        return $this;
     }
 
     /**
@@ -260,7 +240,7 @@ class GatewayFactory extends AbstractServiceLocatorAware
     {
         $properties = get_object_vars($this);
         while (list($key) = each($properties)) {
-            if ($key != 'serviceLocator') {
+            if ($key != 'serviceLocator' && $key != 'eventManager') {
                 $this->{$key} = null;
             }
         }

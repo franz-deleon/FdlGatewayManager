@@ -202,48 +202,40 @@ class GatewayFactoryUtilities extends AbstractServiceLocatorAware
         return $className;
     }
 
-    /**
-     * Normalize a tablename
-     * @param string $tablename
-     * @param Zend\Db\Adapter\Adapter
-     * @return Ambigous <string, string, mixed>
-     */
-    protected function normalizeTablename($tablename, $adapter = null)
+    public static function normalizeTablename($tableName)
     {
-        $wordFilter = new Word\CamelCaseToUnderscore;
-        $tableArray = explode('_', $wordFilter->filter($tablename));
-        $lastWord = strtolower($tableArray[(count($tableArray) - 1)]);
-        if (in_array($lastWord, array('entity', 'table'))) {
-            array_pop($tableArray);
-        }
-        $tablename = implode('_', $tableArray);
-        $namespacePos = strrpos($tablename, "\\");
-        if ($namespacePos > 0) {
-            $tablename = substr($tablename, $namespacePos + 1);
+        $wordFilter = new \Zend\Filter\Word\CamelCaseToUnderscore;
+
+        $tableName = preg_replace('~[^a-z0-9]~i', '_', $tableName);
+        $tableName = $wordFilter->filter($tableName);
+        $tableName = explode('_', $tableName);
+
+        // check if the table name is appended with 'table' or 'entity'
+        $lastWord = strtolower($tableName[(count($tableName) - 1)]);
+        if ('table' === $lastWord || 'entity' === $lastWord) {
+            array_pop($tableName);
         }
 
-        // check if oracle driver
-        if (isset($adapter) && $adapter->getDriver()->getDatabasePlatformName() === 'Oracle') {
-            $tablename = strtoupper($tablename);
-        }
+        $tableName = implode('_', $tableName);
 
-        return $tablename;
+        return $tableName;
     }
 
     /**
-     * @param string|object $namespace
+     * Extract the class name from a fully qualified namespace
+     * @param string|object $class
      * @return mixed
      */
-    protected function extractClassnameFromNamespace($namespace)
+    public static function extractClassnameFromFQNS($class)
     {
-        if (is_object($namespace)) {
-            $namespace = get_class($namespace);
+        if (is_object($class)) {
+            $class = get_class($class);
         }
 
-        if (is_string($namespace)) {
-            $namespace = substr($namespace, (strrpos($namespace, '\\') + 1));
+        if (is_string($class)) {
+            $class = substr($class, (strrpos($class, '\\') + 1));
         }
 
-        return $namespace;
+        return $class;
     }
 }

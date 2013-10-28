@@ -38,42 +38,12 @@ class Module
         return array(
             'invokables' => array(
                 'FdlGatewayManager'  => __NAMESPACE__ . '\GatewayManager',
-                'FdlGatewayWorker'   => __NAMESPACE__ . '\GatewayWorker',
                 'FdlGatewayFactory'  => __NAMESPACE__ . '\GatewayFactory',
                 'FdlGatewayWorkerEvent' => __NAMESPACE__ . '\GatewayWorkerEvent',
                 'FdlGatewayWorkerEventListeners' => __NAMESPACE__ . '\GatewayWorkerEventListeners',
-                'FdlGatewayFactoryUtilities'   => __NAMESPACE__ . '\GatewayFactoryUtilities',
-            ),
-            'factories' => array(
-                'FdlAdapterFactory' => __NAMESPACE__ . '\Factory\AdapterFactory',
-                'FdlGatewayTableGateway' => function ($sm) {
-                    $gwfactory    = $sm->get('FdlGatewayFactory');
-                    $factoryUtils = $sm->get('FdlGatewayFactoryUtilities');
-
-                    // initialize a gateway
-                    $gateway = $factoryUtils->getConfigGatewayName();
-                    $gateway = new $gateway(
-                        $gwfactory->getTable(),
-                        $gwfactory->getAdapter(),
-                        $gwfactory->getFeature(),
-                        $gwfactory->getResultSet()
-                    );
-
-                    // inject to the abstract table if any
-                    $tableTarget = $gwfactory->getTableGatewayProxy();
-                    if (isset($tableTarget)) {
-                        $tableTarget = new $tableTarget();
-                        if ($tableTarget instanceof Gateway\AbstractTable) {
-                            $gateway = $tableTarget->setTableGateway($gateway);
-                        }
-                    }
-
-                    return $gateway;
-                },
             ),
             'shared' => array(
-                'FdlGatewayWorker' => false,
-                'FdlGatewayTableGateway' => false,
+                //'FdlGatewayWorkerEvent' => false,
             ),
             'initializers' => array(
                 function ($instance, $sm) {

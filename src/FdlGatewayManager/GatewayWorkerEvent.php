@@ -8,11 +8,13 @@ class GatewayWorkerEvent extends Event implements WorkerInterface
     /**
      * Gateway worker events
      */
-    const INIT_ADAPTER  = 'init.Adapter';
-    const LOAD_FEATURES = 'load.Features';
-    const LOAD_RESULT_SET_PROTOTYPE = 'load.ResultSetPrototype';
-    const LOAD_SQL      = 'load.Sql';
-    const RESOLVE_TABLE = 'resolve.Table';
+    const INIT_ADAPTER                = 'init.Adapter';
+    const RESOLVE_TABLE_NAME          = 'resolve.TableName';
+    const RESOLVE_TABLE_GATEWAY       = 'resolve.TableGateway';
+    const LOAD_FEATURES               = 'load.Features';
+    const LOAD_RESULT_SET_PROTOTYPE   = 'load.ResultSetPrototype';
+    const LOAD_SQL                    = 'load.Sql';
+    const POST_INIT_TABLE_GATEWAY     = 'post.init.TableGateway';
 
     /**
      * Get the adapter key
@@ -98,6 +100,26 @@ class GatewayWorkerEvent extends Event implements WorkerInterface
     }
 
     /**
+     * Sql
+     * @param void
+     * @return string
+     */
+    public function getSqlName()
+    {
+        return $this->getParam('sql');
+    }
+
+    /**
+     * @param string $sql
+     * @return GatewayFactoryEvent
+     */
+    public function setSqlName($sql)
+    {
+        $this->setParam('sql', $sql);
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getTableName()
@@ -112,24 +134,6 @@ class GatewayWorkerEvent extends Event implements WorkerInterface
     public function setTableName($tableName)
     {
         $this->setParam('table-name', $tableName);
-        return $this;
-    }
-
-    /**
-     * @param string
-     * @return GatewayFactoryEvent
-     */
-    public function getTableGatewayName()
-    {
-        return $this->getParam('table-gateway-name');
-    }
-
-    /**
-     * @param string $tableGatewayName
-     */
-    public function setTableGatewayName($tableGatewayName)
-    {
-        $this->setParam('table-gateway-name', $tableGatewayName);
         return $this;
     }
 }

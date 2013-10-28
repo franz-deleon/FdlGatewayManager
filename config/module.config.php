@@ -5,15 +5,16 @@ return array(
             'FdlGatewayFactoryAdapterKeyContainer' => 'FdlGatewayManager\GatewayFactoryAdapterKeyContainer',
         ),
         'factories' => array(
-            'FdlGatewayPlugin' => 'FdlGatewayManager\Service\FdlGatewayPluginFactory',
-            'FdlEntityFactory' => 'FdlGatewayManager\Factory\EntityServiceFactory',
-            'FdlTableServiceFactory'  => 'FdlGatewayManager\Factory\TableServiceFactory',
+            'FdlGatewayPlugin'               => 'FdlGatewayManager\Service\FdlGatewayPluginFactory',
+            'FdlEntityFactory'               => 'FdlGatewayManager\Factory\EntityServiceFactory',
+            'FdlTableServiceFactory'         => 'FdlGatewayManager\Factory\TableServiceFactory',
+            'FdlTableGatewayServiceFactory'  => 'FdlGatewayManager\Factory\TableGatewayServiceFactory',
         ),
         'abstract_factories' => array(
-            //'FdlGatewayManager\Factory\TableAbstractFactory',
             'FdlGatewayManager\Factory\AdapterServiceAbstractFactory',
             'FdlGatewayManager\Factory\FeaturesServiceAbstractFactory',
             'FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory',
+            'FdlGatewayManager\Factory\SqlServiceAbstractFactory',
         ),
     ),
     'fdl_gateway_manager_config' => array(
@@ -50,14 +51,12 @@ return array(
         ),
         /**
          * Default classes to use for TableGateways and Adapter
+         *
+         * IMPORTANT: needs to be a Fully Qualified Namespace
          */
         'gateway' => 'Zend\Db\TableGateway\TableGateway',
         'adapter' => 'Zend\Db\Adapter\Adapter',
      ),
-    'fdl_gateway_manager' => array(
-        'gateway' => 'Zend\Db\TableGateway\TableGateway',
-        'adapter' => 'Zend\Db\Adapter\Adapter',
-    ),
     'fdl_service_listener_options' => array(
         'service_manager' => 'FdlGatewayPlugin',
         'config_key'      => 'fdl_gateway_plugin_config',
