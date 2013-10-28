@@ -68,10 +68,13 @@ class GatewayManager extends AbstractServiceLocatorAware
         $workerEventListeners = $this->getServiceLocator()->get('FdlGatewayWorkerEventListeners');
         $factoryEventManager->attach($workerEventListeners);
 
+        // run the hook
+        $eventHook = $this->getServiceLocator()->get('FdlFactoryEventHook');
+
         // execute the listeners
         $factory = $this->getServiceLocator()->get('FdlGatewayFactory');
         $factory->setWorkerEvent($workerEvent);
-        $factory->run();
+        $factory->run($eventHook);
 
         // retrieve the instantiated tablegateway
         $tableGateway = $factory->getTableGateway();

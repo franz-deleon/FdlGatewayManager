@@ -5,6 +5,7 @@ return array(
             'FdlGatewayManager'                    => 'FdlGatewayManager\GatewayManager',
             'FdlGatewayFactory'                    => 'FdlGatewayManager\GatewayFactory',
             'FdlGatewayWorkerEvent'                => 'FdlGatewayManager\GatewayWorkerEvent',
+            'FdlGatewayFactoryEvent'               => 'FdlGatewayManager\GatewayFactoryEvent',
             'FdlGatewayWorkerEventListeners'       => 'FdlGatewayManager\GatewayWorkerEventListeners',
             'FdlGatewayFactoryAdapterKeyContainer' => 'FdlGatewayManager\GatewayFactoryAdapterKeyContainer',
         ),
@@ -19,6 +20,7 @@ return array(
             'FdlGatewayManager\Factory\FeaturesServiceAbstractFactory',
             'FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory',
             'FdlGatewayManager\Factory\SqlServiceAbstractFactory',
+            'FdlGatewayManager\Factory\FactoryEventHookServiceAbstractFactory',
         ),
         'shared' => array(
             // worker factories
@@ -76,6 +78,10 @@ return array(
          */
         'gateway' => 'Zend\Db\TableGateway\TableGateway',
         'adapter' => 'Zend\Db\Adapter\Adapter',
+        /**
+         * Factory helper to hook to the GatewayFactory
+         */
+        'factory_event_hook' => 'FdlFactoryEventHook',
      ),
     'fdl_service_listener_options' => array(
         'service_manager' => 'FdlGatewayPlugin',
