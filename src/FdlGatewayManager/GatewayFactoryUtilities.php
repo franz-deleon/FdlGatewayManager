@@ -19,7 +19,7 @@ class GatewayFactoryUtilities
             array_pop($tableName);
         }
 
-        $tableName = implode('_', $tableName);
+        $tableName = implode('', $tableName);
 
         return $tableName;
     }
