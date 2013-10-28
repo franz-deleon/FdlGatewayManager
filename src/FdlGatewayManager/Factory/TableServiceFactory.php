@@ -15,7 +15,7 @@ class TableServiceFactory implements ServiceManager\FactoryInterface
     public function createService(ServiceManager\ServiceLocatorInterface $serviceLocator)
     {
         $config         = $serviceLocator->get('config');
-        $event          = $serviceLocator->get('FdlGatewayWorkerEvent');
+        $event          = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent();
         $adapterKeyName = $event->getAdapterKey();
         $tableName      = $event->getTableName();
         $assetLocation  = $config['fdl_gateway_manager_config']['asset_location'];
@@ -53,7 +53,7 @@ class TableServiceFactory implements ServiceManager\FactoryInterface
             // maybe a class with an appended 'Table' exists then use it
             $tableClass = $tableClass . 'Table';
             if (class_exists($tableClass)) {
-                return $tableClass();
+                return new $tableClass();
             }
 
             return new \stdClass();

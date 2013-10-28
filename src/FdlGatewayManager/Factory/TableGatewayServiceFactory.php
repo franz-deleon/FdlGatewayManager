@@ -15,7 +15,7 @@ class TableGatewayServiceFactory implements ServiceManager\FactoryInterface
     {
         $gatewayFactory = $serviceLocator->get('FdlGatewayFactory');
         $config         = $serviceLocator->get('config');
-        $event          = $serviceLocator->get('FdlGatewayWorkerEvent');
+        $event          = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent();
         $tableGateway   = $config['fdl_gateway_manager_config']['gateway'];
 
         $tableGateway = new $tableGateway(

@@ -11,7 +11,7 @@ class RowGatewayFeature extends AbstractFeature
      */
     public function create()
     {
-        $table = $this->getFdlGatewayFactory()->getTableGatewayProxy();
+        $table = $this->getGatewayFactory()->getTableGateway();
         if (isset($table)) {
             $table = new $table();
             if (property_exists($table, 'primaryKey')) {

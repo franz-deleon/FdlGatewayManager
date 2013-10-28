@@ -63,33 +63,23 @@ class GatewayManager extends AbstractServiceLocatorAware
             $workerEvent->setSql($params['sql_name']);
         }
 
-        // attach the events
-        $this->loadWorkerEvents();
+        // attach the listeners
+        $factoryEventManager  = $this->getServiceLocator()->get('FdlGatewayFactory')->getEventManager();
+        $workerEventListeners = $this->getServiceLocator()->get('FdlGatewayWorkerEventListeners');
+        $factoryEventManager->attach($workerEventListeners);
 
         // execute the listeners
-        $factory = $this->getFactory();
+        $factory = $this->getServiceLocator()->get('FdlGatewayFactory');
+        $factory->setWorkerEvent($workerEvent);
         $factory->run();
 
         // retrieve the instantiated tablegateway
         $tableGateway = $factory->getTableGateway();
 
-        //reset the factory
-        $factory->reset();
-        //$factory->setEventManager(null);
+        //reset the factory and detach attached listeners
+        $factory->clearProperties();
+        $factoryEventManager->detach($workerEventListeners);
 
         return $tableGateway;
-    }
-
-    public function loadWorkerEvents()
-    {
-        $factoryEventManager  = $this->getFactory()->getEventManager();
-        $workerEventListeners = $this->getServiceLocator()->get('FdlGatewayWorkerEventListeners');
-        $factoryEventManager->attach($workerEventListeners);
-    }
-
-    public function getFactory()
-    {
-        $factory = $this->getServiceLocator()->get('FdlGatewayFactory');
-        return $factory;
     }
 }

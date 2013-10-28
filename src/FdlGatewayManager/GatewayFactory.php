@@ -53,7 +53,7 @@ class GatewayFactory extends AbstractServiceLocatorAware
      */
     public function run()
     {
-        $workerEvent = $this->getServiceLocator()->get('FdlGatewayWorkerEvent');
+        $workerEvent  = $this->getWorkerEvent();
         $eventManager = $this->getEventManager();
 
         if (isset($workerEvent) && $workerEvent instanceof WorkerInterface) {
@@ -62,9 +62,6 @@ class GatewayFactory extends AbstractServiceLocatorAware
 
             // resolve the table name
             $eventManager->trigger(GatewayWorkerEvent::RESOLVE_TABLE_NAME, $this, $workerEvent);
-
-            // resolve the table gateway proxy class
-            $eventManager->trigger(GatewayWorkerEvent::RESOLVE_TABLE_GATEWAY, $this, $workerEvent);
 
             // load the features
             $eventManager->trigger(GatewayWorkerEvent::LOAD_FEATURES, $this, $workerEvent);
@@ -236,7 +233,7 @@ class GatewayFactory extends AbstractServiceLocatorAware
      * Reset the gateway worker
      * @param void
      */
-    public function reset()
+    public function clearProperties()
     {
         $properties = get_object_vars($this);
         while (list($key) = each($properties)) {

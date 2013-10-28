@@ -13,7 +13,7 @@ class FdlGatewayPluginManager extends AbstractPluginManager
      *
      * @var bool
      */
-    protected $shareByDefault = false;
+    protected $shareByDefault = true;
 
     /**
      * Proxy to factory method

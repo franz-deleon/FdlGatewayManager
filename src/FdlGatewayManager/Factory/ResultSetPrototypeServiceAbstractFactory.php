@@ -34,7 +34,7 @@ class ResultSetPrototypeServiceAbstractFactory implements ServiceManager\Abstrac
     public function createServiceWithName(ServiceManager\ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $config  = $serviceLocator->get('config');
-        $resultSetPrototypeName = $serviceLocator->get('FdlGatewayWorkerEvent')->getResultSetPrototypeName();
+        $resultSetPrototypeName = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent()->getResultSetPrototypeName();
 
         if (isset($resultSetPrototypeName)) {
             if (class_exists($resultSetPrototypeName)) {

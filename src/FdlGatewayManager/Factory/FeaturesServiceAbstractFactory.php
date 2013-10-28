@@ -34,7 +34,7 @@ class FeaturesServiceAbstractFactory implements ServiceManager\AbstractFactoryIn
     public function createServiceWithName(ServiceManager\ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $config  = $serviceLocator->get('config');
-        $featureName = $serviceLocator->get('FdlGatewayWorkerEvent')->getFeatureName();
+        $featureName = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent()->getFeatureName();
 
         if (isset($featureName)) {
             if (class_exists($featureName)) {

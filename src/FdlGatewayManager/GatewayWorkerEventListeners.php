@@ -26,7 +26,7 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
     public function attach(EventManager\EventManagerInterface $events)
     {
         $this->attachAdapterListeners();
-        $this->attachTableNameListeners();
+        $this->attachTableListeners();
         $this->attachGatewayOptionalParams();
         $this->attachPostInit();
     }
@@ -38,11 +38,10 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
         $this->listeners[] = $factoryEventManager->attach(GatewayWorkerEvent::INIT_ADAPTER, array($this, 'initEntity'));
     }
 
-    public function attachTableNameListeners()
+    public function attachTableListeners()
     {
         $factoryEventManager = $this->getFactoryEventManager();
-        $this->listeners[] = $factoryEventManager->attach(GatewayWorkerEvent::RESOLVE_TABLE_NAME, array($this, 'resolveTableName'));
-        $this->listeners[] = $factoryEventManager->attach(GatewayWorkerEvent::RESOLVE_TABLE_GATEWAY, array($this, 'resolveTableGateway'));
+        $this->listeners[] = $factoryEventManager->attach(GatewayWorkerEvent::RESOLVE_TABLE_NAME, array($this, 'resolveTable'));
     }
 
     public function attachGatewayOptionalParams()
@@ -126,20 +125,23 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
      * @param GatewayWorkerEvent $e
      * @throws Exception\ErrorException
      */
-    public function resolveTableName(GatewayWorkerEvent $e)
+    public function resolveTable(GatewayWorkerEvent $e)
     {
         $gatewayFactory = $e->getTarget();
         $serviceManager = $gatewayFactory->getServiceLocator();
-        $tableClass     = $serviceManager->get('FdlTableServiceFactory');
+        $tableObject    = $serviceManager->get('FdlTableServiceFactory');
 
         // the table object exist
-        if (!$tableClass instanceof \stdClass) {
+        if (!$tableObject instanceof \stdClass) {
             // table class is an implementation of TableInterface
-            if ($tableClass instanceof Gateway\TableInterface && $tableClass->getTableName() !== null) {
-                $tableClass =  $tableClass->getTableName();
+            if ($tableObject instanceof Gateway\TableInterface && $tableObject->getTableName() !== null) {
+                $tableClass = $tableObject->getTableName();
+
+                // assign the table object as a tableGateway proxy
+                $gatewayFactory->setTableGateway($tableObject);
             } else {
                 // try to get the classname from the FQNS of the table class
-                $tableClass = FactoryUtilities::extractClassnameFromFQNS($tableClass);
+                $tableClass = FactoryUtilities::extractClassnameFromFQNS($tableObject);
                 $tableClass = FactoryUtilities::normalizeTablename($tableClass);
             }
         }
@@ -149,28 +151,6 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
         }
 
         $gatewayFactory->setTable($tableClass);
-    }
-
-    /**
-     * Resolve the Table Gateway proxy.
-     *
-     * This can be a TableGateway proxy which is an extended class from
-     * FdlGatewayManager\Gateway\AbstractTable
-     *
-     * If a valid object is returned by the TableServiceFactory then store
-     * that object in the Gateway Factory.
-     *
-     * @param GatewayWorkerEvent $e
-     */
-    public function resolveTableGateway(GatewayWorkerEvent $e)
-    {
-        $gatewayFactory = $e->getTarget();
-        $serviceManager = $gatewayFactory->getServiceLocator();
-        $tableClass     = $serviceManager->get('FdlTableServiceFactory');
-
-        if (!$tableClass instanceof \stdClass) {
-            $gatewayFactory->setTableGateway($tableClass);
-        }
     }
 
     /**
@@ -231,6 +211,15 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
         }
     }
 
+    /**
+     * Load the TableGateway Sql argument if set.
+     * Pulls from the abstract factory.
+     *
+     * If a user want to override the factory, it can be
+     * done by overriding 'FdlTableGateway\Sql'
+     *
+     * @param GatewayWorkerEvent $e
+     */
     public function loadSql(GatewayWorkerEvent $e)
     {
         $gatewayFactory = $e->getTarget();

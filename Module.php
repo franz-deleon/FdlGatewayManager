@@ -36,15 +36,6 @@ class Module
     public function getServiceConfig()
     {
         return array(
-            'invokables' => array(
-                'FdlGatewayManager'  => __NAMESPACE__ . '\GatewayManager',
-                'FdlGatewayFactory'  => __NAMESPACE__ . '\GatewayFactory',
-                'FdlGatewayWorkerEvent' => __NAMESPACE__ . '\GatewayWorkerEvent',
-                'FdlGatewayWorkerEventListeners' => __NAMESPACE__ . '\GatewayWorkerEventListeners',
-            ),
-            'shared' => array(
-                //'FdlGatewayWorkerEvent' => false,
-            ),
             'initializers' => array(
                 function ($instance, $sm) {
                     if ($instance instanceof GatewayPluginAwareInterface) {

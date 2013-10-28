@@ -34,7 +34,7 @@ class SqlServiceAbstractFactory implements ServiceManager\AbstractFactoryInterfa
     public function createServiceWithName(ServiceManager\ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $config  = $serviceLocator->get('config');
-        $sqlName = $serviceLocator->get('FdlGatewayWorkerEvent')->getSqlName();
+        $sqlName = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent()->getSqlName();
 
         if (isset($sqlName)) {
             if (class_exists($sqlName)) {

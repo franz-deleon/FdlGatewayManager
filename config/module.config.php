@@ -2,6 +2,10 @@
 return array(
     'service_manager' => array(
         'invokables' => array(
+            'FdlGatewayManager'                    => 'FdlGatewayManager\GatewayManager',
+            'FdlGatewayFactory'                    => 'FdlGatewayManager\GatewayFactory',
+            'FdlGatewayWorkerEvent'                => 'FdlGatewayManager\GatewayWorkerEvent',
+            'FdlGatewayWorkerEventListeners'       => 'FdlGatewayManager\GatewayWorkerEventListeners',
             'FdlGatewayFactoryAdapterKeyContainer' => 'FdlGatewayManager\GatewayFactoryAdapterKeyContainer',
         ),
         'factories' => array(
@@ -15,6 +19,22 @@ return array(
             'FdlGatewayManager\Factory\FeaturesServiceAbstractFactory',
             'FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory',
             'FdlGatewayManager\Factory\SqlServiceAbstractFactory',
+        ),
+        'shared' => array(
+            // worker factories
+            'FdlGatewayWorkerEvent' => false,
+            'FdlGatewayWorkerEventListeners' => false,
+
+            // event factories
+            'FdlTableServiceFactory' => false,
+            'FdlEntityFactory' => false,
+            'FdlTableGatewayServiceFactory' => false,
+
+            // abstract factories
+            'FdlTableGateway\Adapter' => false,
+            'FdlTableGateway\Features' => false,
+            'FdlTableGateway\Sql' => false,
+            'FdlTableGateway\ResultSetPrototype' => false,
         ),
     ),
     'fdl_gateway_manager_config' => array(

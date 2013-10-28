@@ -14,7 +14,7 @@ class EntityServiceFactory implements ServiceManager\FactoryInterface
     public function createService(ServiceManager\ServiceLocatorInterface $serviceLocator)
     {
         $config  = $serviceLocator->get('config');
-        $event = $serviceLocator->get('FdlGatewayWorkerEvent');
+        $event = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent();
         $adapterKeyName = $event->getAdapterKey();
         $entityName     = $event->getEntityName();
         $assetLocation  = $config['fdl_gateway_manager_config']['asset_location'];

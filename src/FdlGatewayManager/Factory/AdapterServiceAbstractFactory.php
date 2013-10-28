@@ -155,7 +155,7 @@ class AdapterServiceAbstractFactory implements ServiceManager\AbstractFactoryInt
     public function getAdapterConfig()
     {
         $dbConfig = $this->getDbConfig();
-        $adapterKeyName = $this->getServiceLocator()->get('FdlGatewayWorkerEvent')->getAdapterKey();
+        $adapterKeyName = $this->getServiceLocator()->get('FdlGatewayFactory')->getWorkerEvent()->getAdapterKey();
 
         if (!empty($adapterKeyName)) {
             if (is_array($dbConfig[$adapterKeyName])) {
