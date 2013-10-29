@@ -53,11 +53,8 @@ class GatewayFactory extends AbstractServiceLocatorAware
      */
     public function run()
     {
-        $factoryEvent = $this->getServiceLocator()->get('FdlGatewayFactoryEvent');
         $workerEvent  = $this->getWorkerEvent();
         $eventManager = $this->getEventManager();
-
-        $eventManager->trigger(GatewayFactoryEvent::PRE_RUN, $this, $factoryEvent);
 
         if (isset($workerEvent) && $workerEvent instanceof WorkerInterface) {
             // load the adapter
@@ -81,7 +78,12 @@ class GatewayFactory extends AbstractServiceLocatorAware
             throw new Exception\ClassNotExistException('There is no worker event');
         }
 
-        $eventManager->trigger(GatewayFactoryEvent::POST_RUN, $this, $factoryEvent);
+        // trigger the post run
+        $eventManager->trigger(
+            GatewayFactoryEvent::POST_RUN,
+            $this,
+            $this->getServiceLocator()->get('FdlGatewayFactoryEvent')
+        );
     }
 
     /**

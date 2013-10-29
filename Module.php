@@ -36,6 +36,45 @@ class Module
     public function getServiceConfig()
     {
         return array(
+            'invokables' => array(
+                'FdlGatewayFactory'                    => 'FdlGatewayManager\GatewayFactory',
+                'FdlGatewayWorkerEvent'                => 'FdlGatewayManager\GatewayWorkerEvent',
+                'FdlGatewayFactoryEvent'               => 'FdlGatewayManager\GatewayFactoryEvent',
+                'FdlGatewayWorkerEventListeners'       => 'FdlGatewayManager\GatewayWorkerEventListeners',
+                'FdlGatewayFactoryAdapterKeyContainer' => 'FdlGatewayManager\GatewayFactoryAdapterKeyContainer',
+            ),
+            'factories' => array(
+                'FdlGatewayPlugin'               => 'FdlGatewayManager\Service\FdlGatewayPluginFactory',
+                'FdlEntityFactory'               => 'FdlGatewayManager\Factory\EntityServiceFactory',
+                'FdlTableServiceFactory'         => 'FdlGatewayManager\Factory\TableServiceFactory',
+                'FdlTableGatewayServiceFactory'  => 'FdlGatewayManager\Factory\TableGatewayServiceFactory',
+                'FdlGatewayManager'              => function ($sm) {
+                    return new GatewayManager($sm);
+                },
+            ),
+            'abstract_factories' => array(
+                'FdlGatewayManager\Factory\AdapterServiceAbstractFactory',
+                'FdlGatewayManager\Factory\FeaturesServiceAbstractFactory',
+                'FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory',
+                'FdlGatewayManager\Factory\SqlServiceAbstractFactory',
+                'FdlGatewayManager\Factory\FactoryEventHookServiceAbstractFactory',
+            ),
+            'shared' => array(
+                // worker factories
+                'FdlGatewayWorkerEvent' => false,
+                'FdlGatewayWorkerEventListeners' => false,
+
+                // event factories
+                'FdlTableServiceFactory' => false,
+                'FdlEntityFactory' => false,
+                'FdlTableGatewayServiceFactory' => false,
+
+                // abstract factories
+                'FdlTableGateway\Adapter' => false,
+                'FdlTableGateway\Features' => false,
+                'FdlTableGateway\Sql' => false,
+                'FdlTableGateway\ResultSetPrototype' => false,
+            ),
             'initializers' => array(
                 function ($instance, $sm) {
                     if ($instance instanceof GatewayPluginAwareInterface) {

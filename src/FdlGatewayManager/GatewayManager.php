@@ -1,8 +1,32 @@
 <?php
 namespace FdlGatewayManager;
 
+use Zend\ServiceManager;
+
 class GatewayManager extends AbstractServiceLocatorAware
 {
+    /**
+     * @var \Zend\EventManager\EventManager
+     */
+    protected $factoryEventManager;
+
+    /**
+     * Constructor
+     * Allow to hook into the events
+     */
+    public function __construct(ServiceManager\ServiceLocatorInterface $serviceManager)
+    {
+        $gatewayFactory = $serviceManager->get('FdlGatewayFactory');
+        $this->factoryEventManager = $gatewayFactory->getEventManager();
+
+        // trigger the pre run
+        $this->factoryEventManager->trigger(
+            GatewayFactoryEvent::PRE_RUN,
+            $gatewayFactory,
+            $serviceManager->get('FdlGatewayFactoryEvent')
+        );
+    }
+
     /**
      * Usage:
      * <code>
@@ -66,15 +90,18 @@ class GatewayManager extends AbstractServiceLocatorAware
         return $this->createTableGateway($workerEvent);
     }
 
+    /**
+     * Create the TableGateway
+     *
+     * @param \FdlGatewayManager\GatewayWorkerEVent $workerEvent
+     * @return \Zend\Db\TableGateway\TableGatewayInterface
+     */
     public function createTableGateway($workerEvent)
     {
         // attach the listeners
-        $factoryEventManager  = $this->getServiceLocator()->get('FdlGatewayFactory')->getEventManager();
+        $factoryEventManager  = $this->factoryEventManager;
         $workerEventListeners = $this->getServiceLocator()->get('FdlGatewayWorkerEventListeners');
         $factoryEventManager->attach($workerEventListeners);
-
-        // run the hook
-        $this->getServiceLocator()->get('FdlFactoryEventHook');
 
         // execute the listeners
         $factory = $this->getServiceLocator()->get('FdlGatewayFactory');
