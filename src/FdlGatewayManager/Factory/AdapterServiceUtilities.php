@@ -16,29 +16,16 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
     protected $adapterKey;
 
     /**
-     * @param string $adapterKey
-     * @return \FdlGatewayManager\Factory\AdapterServiceUtilities
-     */
-    public function setAdapterKey($adapterKey)
-    {
-        $this->adapterKey = $adapterKey;
-        return $this;
-    }
-
-    /**
      * Retrieve the adapter key
      * Lazy loads the adapter key from
      * @return string
      */
     public function getAdapterKey()
     {
-        if (null === $this->adapterKey) {
-            $this->adapterKey = $this->getServiceLocator()
-                                     ->get('FdlGatewayFactory')
-                                     ->getWorkerEvent()
-                                     ->getAdapterKey();
+        $workerEvent = $this->getServiceLocator()->get('FdlGatewayFactory')->getWorkerEvent();
+        if (isset($workerEvent)) {
+            return $workerEvent->getAdapterKey();
         }
-        return $this->adapterKey;
     }
 
     /**
@@ -49,6 +36,9 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
     {
         $driverParams = $this->getAdapterConfig();
 
+        if (isset($driverParams['adapter'])) {
+            unset($driverParams['adapter']);
+        }
         if (isset($driverParams['platform'])) {
             unset($driverParams['platform']);
         }
@@ -60,6 +50,23 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
         }
 
         return $driverParams;
+    }
+
+    public function getAdapter()
+    {
+        $adapterConfig  = $this->getAdapterConfig();
+        $adapter = null;
+
+        if (isset($adapterConfig['adapter'])) {
+            try {
+                $adapter = $this->getServiceLocator()->get($adapterConfig['adapter']);
+            } catch (\Exception $e) {
+                if (is_object($adapterConfig['adapter'])) {
+                    $adapter = $adapterConfig['adapter'];
+                }
+            }
+        }
+        return $adapter;
     }
 
     public function getPlatform()

@@ -19,9 +19,9 @@ class GatewayManager extends AbstractServiceLocatorAware
         $gatewayFactory = $serviceManager->get('FdlGatewayFactory');
         $this->factoryEventManager = $gatewayFactory->getEventManager();
 
-        // trigger the pre run hook, the pre run will only run once in the life of the factory
+        // trigger the pre run hook, the pre run hook will only run once in the life of the factory
         $this->factoryEventManager->trigger(
-            GatewayFactoryEvent::PRE_RUN,
+            GatewayFactoryEvent::ON_MANAGER_STARTUP,
             $gatewayFactory,
             $serviceManager->get('FdlGatewayFactoryEvent')
         );
@@ -99,12 +99,23 @@ class GatewayManager extends AbstractServiceLocatorAware
     public function createTableGateway($workerEvent)
     {
         // attach the listeners
+        $serviceManager       = $this->getServiceLocator();
         $factoryEventManager  = $this->factoryEventManager;
-        $workerEventListeners = $this->getServiceLocator()->get('FdlGatewayWorkerEventListeners');
+        $workerEventListeners = $serviceManager->get('FdlGatewayWorkerEventListeners');
         $factoryEventManager->attach($workerEventListeners);
 
+        $factory = $serviceManager->get('FdlGatewayFactory');
+
+        // This is where to hook to WorkerEvent
+        // Each listener here is triggered everytime a gateway is created
+        // so be careful
+        $this->factoryEventManager->trigger(
+            GatewayFactoryEvent::PRE_RUN,
+            $factory,
+            $serviceManager->get('FdlGatewayFactoryEvent')
+        );
+
         // execute the listeners
-        $factory = $this->getServiceLocator()->get('FdlGatewayFactory');
         $factory->setWorkerEvent($workerEvent);
         $factory->run();
 

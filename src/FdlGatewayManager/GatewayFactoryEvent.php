@@ -8,5 +8,6 @@ class GatewayFactoryEvent extends Event
     /**
      * Gateway factory events
      */
-    const PRE_RUN  = 'pre.run';
+    const ON_MANAGER_STARTUP  = 'onManagerStartup.FactoryEvent';
+    const PRE_RUN             = 'preRun.FactoryEvent';
 }
