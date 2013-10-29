@@ -19,7 +19,7 @@ class GatewayManager extends AbstractServiceLocatorAware
         $gatewayFactory = $serviceManager->get('FdlGatewayFactory');
         $this->factoryEventManager = $gatewayFactory->getEventManager();
 
-        // trigger the pre run
+        // trigger the pre run hook, the pre run will only run once in the life of the factory
         $this->factoryEventManager->trigger(
             GatewayFactoryEvent::PRE_RUN,
             $gatewayFactory,

@@ -37,6 +37,7 @@ class Module
     {
         return array(
             'invokables' => array(
+                'FdlAdapterServiceUtilities'           => 'FdlGatewayManager\Factory\AdapterServiceUtilities',
                 'FdlGatewayFactory'                    => 'FdlGatewayManager\GatewayFactory',
                 'FdlGatewayWorkerEvent'                => 'FdlGatewayManager\GatewayWorkerEvent',
                 'FdlGatewayFactoryEvent'               => 'FdlGatewayManager\GatewayFactoryEvent',

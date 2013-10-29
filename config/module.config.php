@@ -12,7 +12,7 @@ return array(
          * Example:
          * <code>
          *     factories => array(
-         *         'FdlTableGateway\Table' => function ($sm) {},
+         *         'FdlTableGateway\Adapter' => function ($sm) {},
          *     )
          * </code>
          */

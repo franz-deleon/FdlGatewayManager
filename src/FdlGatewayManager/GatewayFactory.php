@@ -77,13 +77,6 @@ class GatewayFactory extends AbstractServiceLocatorAware
         } else {
             throw new Exception\ClassNotExistException('There is no worker event');
         }
-
-        // trigger the post run
-        $eventManager->trigger(
-            GatewayFactoryEvent::POST_RUN,
-            $this,
-            $this->getServiceLocator()->get('FdlGatewayFactoryEvent')
-        );
     }
 
     /**

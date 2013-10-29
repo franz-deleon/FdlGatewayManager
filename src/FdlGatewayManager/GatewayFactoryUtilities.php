@@ -3,7 +3,7 @@ namespace FdlGatewayManager;
 
 use Zend\Db\Adapter\Adapter;
 
-class GatewayFactoryUtilities
+abstract class GatewayFactoryUtilities
 {
     public static function normalizeTablename($tableName)
     {
