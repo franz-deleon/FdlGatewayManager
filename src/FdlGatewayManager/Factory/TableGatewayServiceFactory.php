@@ -13,18 +13,22 @@ class TableGatewayServiceFactory implements ServiceManager\FactoryInterface
      */
     public function createService(ServiceManager\ServiceLocatorInterface $serviceLocator)
     {
-        $gatewayFactory = $serviceLocator->get('FdlGatewayFactory');
         $config         = $serviceLocator->get('config');
-        $event          = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent();
         $tableGateway   = $config['fdl_gateway_manager_config']['gateway'];
 
-        $tableGateway = new $tableGateway(
-            $gatewayFactory->getTable(),
-            $gatewayFactory->getAdapter(),
-            $gatewayFactory->getFeature(),
-            $gatewayFactory->getResultSetPrototype(),
-            $gatewayFactory->getSql()
-        );
+        try {
+            $tableGateway = $serviceLocator->get($tableGateway);
+        } catch (\Exception $e) {
+            // no direct implementation of TableGateway
+            $gatewayFactory = $serviceLocator->get('FdlGatewayFactory');
+            $tableGateway = new $tableGateway(
+                $gatewayFactory->getTable(),
+                $gatewayFactory->getAdapter(),
+                $gatewayFactory->getFeature(),
+                $gatewayFactory->getResultSetPrototype(),
+                $gatewayFactory->getSql()
+            );
+        }
 
         return $tableGateway;
     }

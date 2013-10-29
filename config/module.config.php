@@ -17,9 +17,9 @@ return array(
          * </code>
          */
         'table_gateway' => array(
-            'adapter'  => 'FdlTableGateway\Adapter',
-            'features' => 'FdlTableGateway\Features',
-            'sql'      => 'FdlTableGateway\Sql',
+            'adapter'              => 'FdlTableGateway\Adapter',
+            'features'             => 'FdlTableGateway\Features',
+            'sql'                  => 'FdlTableGateway\Sql',
             'result_set_prototype' => 'FdlTableGateway\ResultSetPrototype',
         ),
         /**
