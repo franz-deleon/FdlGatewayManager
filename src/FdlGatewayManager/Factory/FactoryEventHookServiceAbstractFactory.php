@@ -1,8 +1,6 @@
 <?php
 namespace FdlGatewayManager\Factory;
 
-use FdlGatewayManager\Exception;
-use Zend\Filter\Word\UnderscoreToCamelCase;
 use Zend\ServiceManager;
 
 class FactoryEventHookServiceAbstractFactory implements ServiceManager\AbstractFactoryInterface
@@ -33,6 +31,6 @@ class FactoryEventHookServiceAbstractFactory implements ServiceManager\AbstractF
      */
     public function createServiceWithName(ServiceManager\ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        // do nothing
+        return new \stdClass();
     }
 }
