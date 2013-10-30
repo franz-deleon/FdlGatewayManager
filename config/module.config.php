@@ -40,7 +40,14 @@ return array(
         'gateway' => 'Zend\Db\TableGateway\TableGateway',
         'adapter' => 'Zend\Db\Adapter\Adapter',
         /**
-         * Factory helper to hook to the GatewayFactory
+         * A SM Factory helper to hook to the GatewayFactory.
+         * This is a quick way to hook to events but cannot be overriden.
+         *
+         * <code>
+         * 'factories' => array(
+         *     'FdlFactoryEventHook' => function ($sm) {}
+         * )
+         * </code>
          */
         'factory_event_hook' => 'FdlFactoryEventHook',
      ),

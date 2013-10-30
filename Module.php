@@ -58,7 +58,6 @@ class Module
                 'FdlGatewayManager\Factory\FeaturesServiceAbstractFactory',
                 'FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory',
                 'FdlGatewayManager\Factory\SqlServiceAbstractFactory',
-                'FdlGatewayManager\Factory\FactoryEventHookServiceAbstractFactory',
             ),
             'shared' => array(
                 // worker factories
