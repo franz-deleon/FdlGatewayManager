@@ -38,23 +38,22 @@ class AdapterServiceAbstractFactory implements ServiceManager\AbstractFactoryInt
         $adapterUtilities = $serviceLocator->get('FdlAdapterServiceUtilities');
 
         try {
-            $adapter = $adapterUtilities->getAdapter() ?: $serviceLocator->get($adapter);
+            $adapter = $adapterUtilities->getOptionsAdapterClass() ?: $serviceLocator->get($adapter);
         } catch (\Exception $e) {
-            // if no direct implementation of \Zend\Db\Adapter\Adapter
             if (!class_exists($adapter)) {
                 throw new Exception\ErrorException('Adapter class: "' . $adapter . '" does not exist');
             }
 
             $adapter = new $adapter(
                 $adapterUtilities->getDriverParams(),
-                $adapterUtilities->getPlatform(),
-                $adapterUtilities->getQueryResultPrototype(),
-                $adapterUtilities->getProfiler()
+                $adapterUtilities->getOptionsPlatform(),
+                $adapterUtilities->getOptionsQueryResultPrototype(),
+                $adapterUtilities->getOptionsProfiler()
             );
+        }
 
-            if (!$adapter instanceof AdapterInterface) {
-                throw new Exception\ErrorException('Adapter class: "' . $adapter . '" is not of AdapterInterface');
-            }
+        if (!$adapter instanceof AdapterInterface) {
+            throw new Exception\ErrorException('Adapter class: "' . $adapter . '" is not of AdapterInterface');
         }
 
         return $adapter;

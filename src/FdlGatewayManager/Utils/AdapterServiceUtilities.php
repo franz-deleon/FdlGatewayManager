@@ -2,6 +2,8 @@
 namespace FdlGatewayManager\Utils;
 
 use FdlGatewayManager\AbstractServiceLocatorAware;
+use FdlGatewayManager\Exception;
+use Zend\Soap\call_user_func;
 
 class AdapterServiceUtilities extends AbstractServiceLocatorAware
 {
@@ -36,111 +38,102 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
     {
         $driverParams = $this->getAdapterConfig();
 
-        if (isset($driverParams['adapter'])) {
-            unset($driverParams['adapter']);
-        }
-        if (isset($driverParams['platform'])) {
-            unset($driverParams['platform']);
-        }
-        if (isset($driverParams['query_result_prototype'])) {
-            unset($driverParams['query_result_prototype']);
-        }
-        if (isset($driverParams['profiler'])) {
-            unset($driverParams['profiler']);
+        if (isset($driverParams['options'])) {
+            unset($driverParams['options']);
         }
 
         return $driverParams;
     }
 
-    public function getAdapter()
+    /**
+     * Return the Adapter Class Object options
+     *
+     * Since this will return the Adapter object, it will override
+     * the other options in this param
+     *
+     * @return \Zend\Db\Adapter\Adapter|mixed
+     */
+    public function getOptionsAdapterClass()
     {
-        $adapterConfig  = $this->getAdapterConfig();
-        $adapter = null;
+        $optionsConfig = $this->getOptions();
+        $adapterClass = isset($optionsConfig['adapter_class']) ? $optionsConfig['adapter_class']
+                      : (isset($optionsConfig['adapter']) ? $optionsConfig['adapter'] : null);
 
-        if (isset($adapterConfig['adapter'])) {
-            try {
-                $adapter = $this->getServiceLocator()->get($adapterConfig['adapter']);
-            } catch (\Exception $e) {
-                if (is_object($adapterConfig['adapter'])) {
-                    $adapter = $adapterConfig['adapter'];
-                }
-            }
-        }
-        return $adapter;
-    }
-
-    public function getPlatform()
-    {
-        $adapterConfig = $this->getAdapterConfig();
-
-        $platform = null;
-        if (isset($adapterConfig['platform']) && is_string($adapterConfig['platform'])) {
-            $platform = $adapterConfig['platform'];
-            if (class_exists($platform)) {
-                $platform = new $platform();
-            } else {
-                $platform = "Zend\\Db\\Adapter\\Platform\\{$platform}";
-                if (class_exists($platform)) {
-                    $platform = new $platform();
-                } else {
-                    throw new Exception\ClassNotExistException('Platform for db driver does not exist.');
-                }
-            }
-        } elseif (isset($adapterConfig['platform']) && is_object($adapterConfig['platform'])) {
-            $platform = $adapterConfig['platform'];
+        if (null !== $adapterClass) {
+            return $this->executeClass($adapterClass);
         }
 
-        return $platform;
+        return $adapterClass;
     }
 
-    public function getQueryResultPrototype()
+    public function getOptionsPlatform()
     {
-        $adapterConfig = $this->getAdapterConfig();
+        $optionsConfig = $this->getOptions();
 
-        $qrPrototype = null;
-        if (isset($adapterConfig['query_result_prototype']) && is_string($adapterConfig['query_result_prototype'])) {
-            $qrPrototype = $adapterConfig['query_result_prototype'];
-            if (class_exists($qrPrototype)) {
-                $qrPrototype = new $qrPrototype();
-            } else {
-                $qrPrototype = "Zend\\Db\\ResultSet\\{$qrPrototype}";
-                if (class_exists($qrPrototype)) {
-                    $qrPrototype = new $qrPrototype();
-                } else {
-                    throw new Exception\ClassNotExistException('Query Result Prototype for db driver does not exist.');
-                }
-            }
-        } elseif (isset($adapterConfig['query_result_prototype']) && is_object($adapterConfig['query_result_prototype'])) {
-            $qrPrototype = $adapterConfig['query_result_prototype'];
+        if (isset($optionsConfig['platform'])) {
+            $namespace = 'Zend\Db\Adapter\Platform';
+            $errorMsg  = 'Platform for db driver does not exist';
+            return $this->executeClass($optionsConfig['platform'], $namespace, $errorMsg);
         }
-
-        return $qrPrototype;
     }
 
-    public function getProfiler()
+    public function getOptionsQueryResultPrototype()
+    {
+        $optionsConfig = $this->getOptions();
+
+        if (isset($optionsConfig['query_result_prototype'])) {
+            $namespace = 'Zend\Db\ResultSet';
+            $errorMsg  = 'Query Result Prototype for db driver does not exist.';
+            return $this->executeClass($optionsConfig['query_result_prototype'], $namespace, $errorMsg);
+        }
+    }
+
+    public function getOptionsProfiler()
+    {
+        $optionsConfig = $this->getOptions();
+
+        if (isset($optionsConfig['profiler'])) {
+            $namespace = 'Zend\Db\Adapter\Profiler';
+            $errorMsg  = 'Query Result Prototype for db driver does not exist.';
+            return $this->executeClass($optionsConfig['profiler'], $namespace, $errorMsg);
+        }
+    }
+
+    /**
+     * Return the options param from the dbConfig
+     * @return array|null
+     */
+    public function getOptions()
     {
         $adapterConfig = $this->getAdapterConfig();
-
-        $profiler = null;
-        if (isset($adapterConfig['profiler']) && is_String($adapterConfig['profiler'])) {
-            $profiler = $adapterConfig['profiler'];
-            if (class_exists($profiler)) {
-                $profiler = new $profiler();
-            } else {
-                $profiler = "Zend\\Db\\Adapter\\Profiler\\{$profiler}";
-                if (class_exists($profiler)) {
-                    $profiler = new $profiler();
-                } else {
-                    throw new Exception\ClassNotExistException('Query Result Prototype for db driver does not exist.');
-                }
-            }
-        } elseif (isset($adapterConfig['profiler']) && is_object($adapterConfig['profiler'])) {
-            $profiler = $adapterConfig['profiler'];
+        if (isset($adapterConfig['options'])) {
+            return $adapterConfig['options'];
         }
-
-        return $profiler;
     }
 
+    /**
+     * Retrieve the adapter config depending on the adapterKey
+     *
+     * 1.) Adapter key exist, retrieve that array
+     * 2.) No adapter key but 'default' key exist, return it
+     * 3.) No adapter, no 'default', return the first array instance
+     * 4.) If non of the above will return itself, if itself is an array
+     *
+     * Example: with and adapter key of 'mysql'
+     *
+     * <code>
+     *     'mysql' => array(
+     *          'driver'   => '',
+     *          'dsn'      => '',
+     *          'username' => '',
+     *          'password' => '',
+     *          'options'  => array(),
+     *     ),
+     * </code>
+     *
+     * @throws Exception\ErrorException
+     * @return unknown
+     */
     public function getAdapterConfig()
     {
         $dbConfig = $this->getDbConfig();
@@ -155,23 +148,45 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
                 if (isset($dbConfig['default'])) { // look for default key
                     if (is_array($dbConfig['default'])) {
                         $adapterConfig = $dbConfig['default'];
-                    } else {
-                        throw new Exception\ErrorException('Cannot find any db driver config.');
                     }
                 } else { // just get the input in the config
-                    $firstConfig = array_shift($dbConfig);
+                    $dbConfigCopy = $dbConfig;
+                    $firstConfig  = array_shift($dbConfig);
                     if (is_array($firstConfig)) {
                         $adapterConfig = $firstConfig;
                     } else {
-                        throw new Exception\ErrorException('Cannot find any db driver config.');
+                        // if first config is not an array just return the config
+                        $adapterConfig = $dbConfigCopy;
+                        unset($dbConfig, $firstConfig);
                     }
                 }
             }
         }
 
+        if (!isset($adapterConfig)) {
+            throw new Exception\ErrorException('Cannot find any db driver config.');
+        }
+
         return $adapterConfig;
     }
 
+    /**
+     * Get the database configuration from config
+     *
+     * Will return something the first key and its values
+     *
+     * <code>
+     *     array(
+     *         'fdl_db'       => array(),
+     *         'fdl_database' => array(),
+     *         'db'           => array(),
+     *         'database'     => array(),
+     *     )
+     * </code>
+     *
+     * @throws Exception\InvalidArgumentException
+     * @return multitype:
+     */
     public function getDbConfig()
     {
         if (null === $this->dbConfig) {
@@ -197,5 +212,43 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
         }
 
         return $this->dbConfig;
+    }
+
+    /**
+     * Common execution process to check if argument <$class> is a an object
+     *
+     * 1. Checks if $class is a ServiceManager element
+     * 2. If above not pass, check if <$class> is valid FQNS
+     * 3. If above not pass, check if <$class> against arg $namespace
+     * 4. If above not pass, check if <$class> is callable
+     * 5. If above not pass, check if <$class> is object
+     * 6. Returns an error none of above is valid
+     *
+     * @param mixed  $class           Target to execute in the flow
+     * @param string $namespace       Namespace of the class
+     * @param string $errorMessage    Error Message to produce
+     * @throws Exception\ClassNotExistException
+     * @return object
+     */
+    protected function executeClass($class, $namespace = null, $errorMessage = '')
+    {
+        try {
+            return $this->getServiceLocator()->get($class);
+        } catch (\Exception $e) {
+            if (is_string($class) && class_exists($class)) {
+                return new $class();
+            } elseif (null !== $namespace
+                && is_string($class)
+                && class_exists($class = "{$namespace}\\{$class}")
+            ) {
+                return new $class();
+            } elseif (is_callable($class)) {
+                return call_user_func($class);
+            } elseif (is_object($class)) {
+                return $class;
+            } else {
+                throw new Exception\ClassNotExistException($errorMessage);
+            }
+        }
     }
 }
