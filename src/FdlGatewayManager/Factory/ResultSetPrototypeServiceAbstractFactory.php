@@ -1,8 +1,8 @@
 <?php
 namespace FdlGatewayManager\Factory;
 
-use FdlGatewayManager\Exception;
-use Zend\Filter\Word\UnderscoreToCamelCase;
+use FdlGatewayManager\GatewayFactoryUtilities as FactoryUtilities;
+use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\ServiceManager;
 
 class ResultSetPrototypeServiceAbstractFactory implements ServiceManager\AbstractFactoryInterface
@@ -26,6 +26,10 @@ class ResultSetPrototypeServiceAbstractFactory implements ServiceManager\Abstrac
     /**
      * Create service with name
      *
+     * If set to "Default" or "HydratingResultSet",
+     * Will default by creating a HydratingResult object and injects
+     * The current entity object if it exists
+     *
      * @param ServiceLocatorInterface $serviceLocator
      * @param $name
      * @param $requestedName
@@ -33,23 +37,16 @@ class ResultSetPrototypeServiceAbstractFactory implements ServiceManager\Abstrac
      */
     public function createServiceWithName(ServiceManager\ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        $config  = $serviceLocator->get('config');
-        $resultSetPrototypeName = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent()->getResultSetPrototypeName();
+        $gatewayFactory = $serviceLocator->get('FdlGatewayFactory');
+        $resultSetPrototypeName = FactoryUtilities::normalizeClassname($gatewayFactory->getWorkerEvent()->getResultSetPrototypeName());
 
-        if (isset($resultSetPrototypeName)) {
-            if (class_exists($resultSetPrototypeName)) {
-                $resultSetPrototypeClass = $resultSetPrototypeName;
-            } else {
-                $wordfilter = new UnderscoreToCamelCase();
-                $resultSetPrototypeName = $wordfilter->filter($resultSetPrototypeName);
-                $resultSetPrototypeClass =  "FdlGatewayManager\\ResultSet\\{$resultSetPrototypeName}";
-                if (!class_exists($resultSetPrototypeClass)) {
-                    throw new Exception\ClassNotExistException('Class: ' . $resultSetPrototypeClass . ', does not exist.');
-                }
-            }
-
-            // initialize
-            return new $resultSetPrototypeClass();
+        if (isset($resultSetPrototypeName)
+            && ($resultSetPrototypeName === 'Default' || $resultSetPrototypeName === 'HydratingResultSet')
+        ) {
+            return new HydratingResultSet(
+                new \Zend\Stdlib\Hydrator\ClassMethods(true),
+                $gatewayFactory->getEntity()
+            );
         }
 
         return new \stdClass();

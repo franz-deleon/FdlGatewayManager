@@ -1,8 +1,8 @@
 <?php
 namespace FdlGatewayManager\Factory;
 
-use FdlGatewayManager\Exception;
-use Zend\Filter\Word\UnderscoreToCamelCase;
+use FdlGatewayManager\GatewayFactoryUtilities as FactoryUtilities;
+use Zend\Db\TableGateway\Feature\RowGatewayFeature;
 use Zend\ServiceManager;
 
 class FeaturesServiceAbstractFactory implements ServiceManager\AbstractFactoryInterface
@@ -33,23 +33,26 @@ class FeaturesServiceAbstractFactory implements ServiceManager\AbstractFactoryIn
      */
     public function createServiceWithName(ServiceManager\ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        $config  = $serviceLocator->get('config');
-        $featureName = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent()->getFeatureName();
+        $gatewayFactory = $serviceLocator->get('FdlGatewayFactory');
+        $featureName    = FactoryUtilities::normalizeClassname($gatewayFactory->getWorkerEvent()->getFeatureName());
 
-        if (isset($featureName)) {
-            if (class_exists($featureName)) {
-                $featureClass = $featureName;
-            } else {
-                $wordfilter = new UnderscoreToCamelCase();
-                $featureName = $wordfilter->filter($featureName);
-                $featureClass = __NAMESPACE__ . "\\Feature\\{$featureName}";
-                if (!class_exists($featureClass)) {
-                    throw new Exception\ClassNotExistException('Class: ' . $featureClass . ', does not exist.');
+        if (isset($featureName)
+            && ($featureName === 'Default' || $featureName == 'RowGatewayFeature')
+        ) {
+            $tableProxy = $gatewayFactory->getTableGateway();
+            if (isset($tableProxy) && is_object($tableProxy)) {
+                if (property_exists($tableProxy, 'primaryKey')) {
+                    $primaryKey = $tableProxy->primaryKey;
+                } elseif (is_callable(array($tableProxy, 'getPrimaryKey')) && $tableProxy->getPrimaryKey() !== null) {
+                    $primaryKey = $tableProxy->getPrimaryKey();
                 }
             }
 
-            // initialize feature
-            return new $featureClass();
+            if (isset($primaryKey)) {
+                return new RowGatewayFeature($primaryKey);
+            }
+
+            return new RowGatewayFeature();
         }
 
         return new \stdClass();

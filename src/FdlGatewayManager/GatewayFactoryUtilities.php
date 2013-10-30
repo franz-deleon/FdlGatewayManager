@@ -5,6 +5,12 @@ use Zend\Db\Adapter\Adapter;
 
 abstract class GatewayFactoryUtilities
 {
+    public static function normalizeClassname($className)
+    {
+        $wordFilter = new \Zend\Filter\Word\UnderscoreToCamelCase();
+        return $wordFilter->filter($className);
+    }
+
     public static function normalizeTablename($tableName)
     {
         $wordFilter = new \Zend\Filter\Word\CamelCaseToUnderscore;

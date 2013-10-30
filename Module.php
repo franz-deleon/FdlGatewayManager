@@ -57,7 +57,6 @@ class Module
                 'FdlGatewayManager\Factory\AdapterServiceAbstractFactory',
                 'FdlGatewayManager\Factory\FeaturesServiceAbstractFactory',
                 'FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory',
-                'FdlGatewayManager\Factory\SqlServiceAbstractFactory',
             ),
             'shared' => array(
                 // worker factories
@@ -72,7 +71,6 @@ class Module
                 // abstract factories
                 'FdlTableGateway\Adapter' => false,
                 'FdlTableGateway\Features' => false,
-                'FdlTableGateway\Sql' => false,
                 'FdlTableGateway\ResultSetPrototype' => false,
             ),
             'initializers' => array(

@@ -170,15 +170,8 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
 
         // checks if the feature class implements FeatureInterface
         $feature = $serviceManager->get($config['fdl_gateway_manager_config']['table_gateway']['features']);
-        if ($feature instanceof \FdlGatewayManager\Feature\AbstractFeature) {
-            $feature->setGatewayFactory($gatewayFactory)
-                    ->create();
-            $gatewayFactory->setFeature($feature->getFeature());
-        } else {
-            // we cannot return a null on an abstract factory so check for stdClass
-            if (!$feature instanceof \stdClass) {
-                $gatewayFactory->setFeature($feature);
-            }
+        if (!$feature instanceof \stdClass) {
+            $gatewayFactory->setFeature($feature);
         }
     }
 
@@ -199,15 +192,8 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
 
         // checks if the result set prototype class implements FeatureInterface
         $resultSetPrototype = $serviceManager->get($config['fdl_gateway_manager_config']['table_gateway']['result_set_prototype']);
-        if ($resultSetPrototype instanceof \FdlGatewayManager\ResultSet\AbstractResultSet) {
-            $resultSetPrototype->setGatewayFactory($gatewayFactory)
-                               ->create();
-            $gatewayFactory->setResultSetPrototype($resultSetPrototype->getResultSetPrototype());
-        } else {
-            // we cannot return a null on an abstract factory so check for stdClass
-            if (!$resultSetPrototype instanceof \stdClass) {
-                $gatewayFactory->setResultSetPrototype($resultSetPrototype);
-            }
+        if (!$resultSetPrototype instanceof \stdClass) {
+            $gatewayFactory->setResultSetPrototype($resultSetPrototype);
         }
     }
 
@@ -225,21 +211,25 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
         $gatewayFactory = $e->getTarget();
         $serviceManager = $gatewayFactory->getServiceLocator();
         $config         = $serviceManager->get('config');
+        $sqlServiceKey  = $config['fdl_gateway_manager_config']['table_gateway']['sql'];
 
         // checks if the result set prototype class implements FeatureInterface
-        $sql = $serviceManager->get($config['fdl_gateway_manager_config']['table_gateway']['sql']);
-        if ($sql instanceof \FdlGatewayManager\Sql\AbstractSql) {
-            $sql->setGatewayFactory($gatewayFactory)
-                ->create();
-            $gatewayFactory->setSql($sql->getSql());
-        } else {
-            // we cannot return a null on an abstract factory so check for stdClass
-            if (!$sql instanceof \stdClass) {
-                $gatewayFactory->setSql($sql);
-            }
+        if ($serviceManager->has($sqlServiceKey)) {
+            // do not share
+            $serviceManager->setShared($sqlServiceKey, false);
+            $sql = $serviceManager->get($sqlServiceKey);
+            $gatewayFactory->setSql($sql);
         }
     }
 
+    /**
+     * Load the post initialization
+     *
+     * This is where the actual assembly of TableGateway
+     *
+     * @param GatewayWorkerEvent $e
+     * @return \FdlGatewayManager\Gateway\AbstractTable
+     */
     public function postInit(GatewayWorkerEvent $e)
     {
         $gatewayFactory = $e->getTarget();
