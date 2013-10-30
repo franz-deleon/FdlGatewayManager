@@ -3,7 +3,7 @@ namespace FdlGatewayManager;
 
 use Zend\Db;
 
-class GatewayFactory extends AbstractServiceLocatorAware
+class GatewayFactory extends AbstractGatewayFactory
 {
     /**
      * @var \Zend\Db\Adapter\AdapterInterface
