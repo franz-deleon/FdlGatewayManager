@@ -1,5 +1,5 @@
 <?php
-namespace FdlGatewayManager\Factory;
+namespace FdlGatewayManager\Utils;
 
 use FdlGatewayManager\AbstractServiceLocatorAware;
 

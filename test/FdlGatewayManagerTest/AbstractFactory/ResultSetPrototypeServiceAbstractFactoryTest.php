@@ -1,7 +1,7 @@
 <?php
 namespace FdlGatewayManagerTest;
 
-use FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory;
+use FdlGatewayManager\AbstractFactory\ResultSetPrototypeServiceAbstractFactory;
 /**
  * ResultSetPrototypeServiceAbstractFactory test case.
  */

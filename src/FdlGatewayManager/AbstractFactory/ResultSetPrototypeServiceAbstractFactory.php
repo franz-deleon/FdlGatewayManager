@@ -1,7 +1,7 @@
 <?php
-namespace FdlGatewayManager\Factory;
+namespace FdlGatewayManager\AbstractFactory;
 
-use FdlGatewayManager\GatewayFactoryUtilities as FactoryUtilities;
+use FdlGatewayManager\Utils\GatewayFactoryUtilities as FactoryUtilities;
 use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\ServiceManager;
 

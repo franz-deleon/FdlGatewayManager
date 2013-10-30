@@ -1,7 +1,7 @@
 <?php
 namespace FdlGatewayManager\Factory;
 
-use FdlGatewayManager\GatewayFactoryUtilities as FactoryUtilities;
+use FdlGatewayManager\Utils\GatewayFactoryUtilities as FactoryUtilities;
 use Zend\ServiceManager;
 
 class TableServiceFactory implements ServiceManager\FactoryInterface

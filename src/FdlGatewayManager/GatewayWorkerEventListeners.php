@@ -1,7 +1,7 @@
 <?php
 namespace FdlGatewayManager;
 
-use FdlGatewayManager\GatewayFactoryUtilities as FactoryUtilities;
+use FdlGatewayManager\Utils\GatewayFactoryUtilities as FactoryUtilities;
 use Zend\EventManager;
 
 class GatewayWorkerEventListeners extends AbstractServiceLocatorAware

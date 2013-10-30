@@ -1,7 +1,7 @@
 <?php
 namespace FdlGatewayManagerTest;
 
-use FdlGatewayManager\Factory\FeaturesServiceAbstractFactory;
+use FdlGatewayManager\AbstractFactory\FeaturesServiceAbstractFactory;
 
 /**
  * FeaturesServiceAbstractFactory test case.

@@ -37,7 +37,8 @@ class Module
     {
         return array(
             'invokables' => array(
-                'FdlAdapterServiceUtilities'           => 'FdlGatewayManager\Factory\AdapterServiceUtilities',
+                'FdlAdapterServiceUtilities'           => 'FdlGatewayManager\Utils\AdapterServiceUtilities',
+                'FdlGatewayFactoryUtilities'           => 'FdlGatewayManager\Utils\GatewayFactoryUtilities',
                 'FdlGatewayFactory'                    => 'FdlGatewayManager\GatewayFactory',
                 'FdlGatewayWorkerEvent'                => 'FdlGatewayManager\GatewayWorkerEvent',
                 'FdlGatewayFactoryEvent'               => 'FdlGatewayManager\GatewayFactoryEvent',
@@ -54,9 +55,9 @@ class Module
                 },
             ),
             'abstract_factories' => array(
-                'FdlGatewayManager\Factory\AdapterServiceAbstractFactory',
-                'FdlGatewayManager\Factory\FeaturesServiceAbstractFactory',
-                'FdlGatewayManager\Factory\ResultSetPrototypeServiceAbstractFactory',
+                'FdlGatewayManager\AbstractFactory\AdapterServiceAbstractFactory',
+                'FdlGatewayManager\AbstractFactory\FeaturesServiceAbstractFactory',
+                'FdlGatewayManager\AbstractFactory\ResultSetPrototypeServiceAbstractFactory',
             ),
             'shared' => array(
                 // worker factories

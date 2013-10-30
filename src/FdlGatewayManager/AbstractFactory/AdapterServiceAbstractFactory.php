@@ -1,5 +1,5 @@
 <?php
-namespace FdlGatewayManager\Factory;
+namespace FdlGatewayManager\AbstractFactory;
 
 use FdlGatewayManager\Exception;
 use Zend\Db\Adapter\AdapterInterface;

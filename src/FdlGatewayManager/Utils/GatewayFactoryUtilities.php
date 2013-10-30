@@ -1,9 +1,9 @@
 <?php
-namespace FdlGatewayManager;
+namespace FdlGatewayManager\Utils;
 
 use Zend\Db\Adapter\Adapter;
 
-abstract class GatewayFactoryUtilities
+class GatewayFactoryUtilities
 {
     public static function normalizeClassname($className)
     {
