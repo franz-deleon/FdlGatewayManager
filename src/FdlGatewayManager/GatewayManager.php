@@ -101,10 +101,17 @@ class GatewayManager extends AbstractServiceLocatorAware
         // attach the listeners
         $serviceManager       = $this->getServiceLocator();
         $factoryEventManager  = $this->factoryEventManager;
+        $factory              = $serviceManager->get('FdlGatewayFactory')->setWorkerEvent($workerEvent);
         $workerEventListeners = $serviceManager->get('FdlGatewayWorkerEventListeners');
+        $config               = $serviceManager->get('config');
+
+        // attach default worker listeners
         $factoryEventManager->attach($workerEventListeners);
 
-        $factory = $serviceManager->get('FdlGatewayFactory');
+        // run the factory event hook if it is set
+        if ($serviceManager->has($config['fdl_gateway_manager_config']['factory_event_hook'])) {
+            $serviceManager->get($config['fdl_gateway_manager_config']['factory_event_hook']);
+        }
 
         // This is where to hook to WorkerEvent
         // Each listener here is triggered everytime a gateway is created
@@ -116,7 +123,6 @@ class GatewayManager extends AbstractServiceLocatorAware
         );
 
         // execute the listeners
-        $factory->setWorkerEvent($workerEvent);
         $factory->run();
 
         // retrieve the instantiated tablegateway
