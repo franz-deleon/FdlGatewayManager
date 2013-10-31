@@ -18,19 +18,6 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
     protected $adapterKey;
 
     /**
-     * Retrieve the adapter key
-     * Lazy loads the adapter key from
-     * @return string
-     */
-    public function getAdapterKey()
-    {
-        $workerEvent = $this->getServiceLocator()->get('FdlGatewayFactory')->getWorkerEvent();
-        if (isset($workerEvent)) {
-            return $workerEvent->getAdapterKey();
-        }
-    }
-
-    /**
      * @param array $config
      * @return array
      */
@@ -96,6 +83,19 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
             $namespace = 'Zend\Db\Adapter\Profiler';
             $errorMsg  = 'Query Result Prototype for db driver does not exist.';
             return $this->executeClass($optionsConfig['profiler'], $namespace, $errorMsg);
+        }
+    }
+
+    /**
+     * Retrieve the adapter key
+     * Lazy loads the adapter key from
+     * @return string
+     */
+    public function getAdapterKey()
+    {
+        $workerEvent = $this->getServiceLocator()->get('FdlGatewayFactory')->getWorkerEvent();
+        if (isset($workerEvent)) {
+            return $workerEvent->getAdapterKey();
         }
     }
 
@@ -232,23 +232,23 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
      */
     protected function executeClass($class, $namespace = null, $errorMessage = '')
     {
-        try {
+        if ((is_array($class) || is_string($class))
+            && $this->getServiceLocator()->has($class)
+        ) {
             return $this->getServiceLocator()->get($class);
-        } catch (\Exception $e) {
-            if (is_string($class) && class_exists($class)) {
-                return new $class();
-            } elseif (null !== $namespace
-                && is_string($class)
-                && class_exists($class = "{$namespace}\\{$class}")
-            ) {
-                return new $class();
-            } elseif (is_callable($class)) {
-                return call_user_func($class);
-            } elseif (is_object($class)) {
-                return $class;
-            } else {
-                throw new Exception\ClassNotExistException($errorMessage);
-            }
+        } elseif (is_string($class) && class_exists($class)) {
+            return new $class();
+        } elseif (null !== $namespace
+            && is_string($class)
+            && class_exists($class = "{$namespace}\\{$class}")
+        ) {
+            return new $class();
+        } elseif (is_callable($class)) {
+            return call_user_func($class);
+        } elseif (is_object($class)) {
+            return $class;
+        } else {
+            throw new Exception\ClassNotExistException($errorMessage);
         }
     }
 }

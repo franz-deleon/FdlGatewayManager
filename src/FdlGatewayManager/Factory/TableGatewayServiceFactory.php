@@ -16,9 +16,11 @@ class TableGatewayServiceFactory implements ServiceManager\FactoryInterface
         $config         = $serviceLocator->get('config');
         $tableGateway   = $config['fdl_gateway_manager_config']['gateway'];
 
-        try {
+        if ((is_array($tableGateway) || is_string($tableGateway))
+            && $serviceLocator->has($tableGateway)
+        ) {
             $tableGateway = $serviceLocator->get($tableGateway);
-        } catch (\Exception $e) {
+        } else {
             // no direct implementation of TableGateway
             $gatewayFactory = $serviceLocator->get('FdlGatewayFactory');
             $tableGateway = new $tableGateway(
@@ -29,7 +31,6 @@ class TableGatewayServiceFactory implements ServiceManager\FactoryInterface
                 $gatewayFactory->getSql()
             );
         }
-
         return $tableGateway;
     }
 }
