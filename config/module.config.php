@@ -51,6 +51,10 @@ return array(
          */
         'factory_event_hook' => 'FdlFactoryEventHook',
      ),
+    /**
+     * WARNING: Do not change or overwrite bellow!
+     * Service Listener Options
+     */
     'fdl_service_listener_options' => array(
         'service_manager' => 'FdlGatewayPlugin',
         'config_key'      => 'fdl_gateway_plugin_config',
