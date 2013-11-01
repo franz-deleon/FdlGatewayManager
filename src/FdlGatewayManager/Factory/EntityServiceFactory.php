@@ -2,6 +2,7 @@
 namespace FdlGatewayManager\Factory;
 
 use Zend\ServiceManager;
+use FdlGatewayManager\Utils\GatewayFactoryUtilities as FactoryUtilities;
 
 class EntityServiceFactory implements ServiceManager\FactoryInterface
 {
@@ -16,7 +17,7 @@ class EntityServiceFactory implements ServiceManager\FactoryInterface
         $config  = $serviceLocator->get('config');
         $event = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent();
         $adapterKeyName = $event->getAdapterKey();
-        $entityName     = $event->getEntityName();
+        $entityName     = FactoryUtilities::normalizeTablename($event->getEntityName());
         $assetLocation  = $config['fdl_gateway_manager_config']['asset_location'];
 
         if (null !== $adapterKeyName) {

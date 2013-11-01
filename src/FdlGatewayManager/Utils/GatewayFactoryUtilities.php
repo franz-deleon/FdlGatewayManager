@@ -25,9 +25,11 @@ class GatewayFactoryUtilities
             array_pop($tableName);
         }
 
-        $tableName = implode('', $tableName);
+        $tableName = array_map(function ($name) {
+            return ucfirst($name);
+        }, $tableName);
 
-        return $tableName;
+        return implode('', $tableName);
     }
 
     /**
