@@ -85,19 +85,9 @@ class GatewayWorkerEventListeners extends AbstractServiceLocatorAware
     public function initAdapter(GatewayWorkerEvent $e)
     {
         $gatewayFactory = $e->getTarget();
-        $adapterKey     = $e->getAdapterKey() ?: 'default';
-        $serviceManager = $gatewayFactory->getServiceLocator();
-        $config         = $serviceManager->get('config');
+        $adapterManager = $gatewayFactory->getServiceLocator()->get('FdlAdapterManager');
 
-        // pull from the adapter container if adapter exists
-        $adapterContainer = $serviceManager->get('FdlGatewayFactoryAdapterKeyContainer');
-        if (isset($adapterContainer[$adapterKey])) {
-            $adapter = $adapterContainer[$adapterKey];
-        } else {
-            $adapter = $serviceManager->get($config['fdl_gateway_manager_config']['table_gateway']['adapter']);
-            $adapterContainer[$adapterKey] = $adapter;
-        }
-
+        $adapter = $adapterManager->get($e->getAdapterKey());
         $gatewayFactory->setAdapter($adapter);
     }
 

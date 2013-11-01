@@ -35,25 +35,36 @@ class AdapterServiceAbstractFactory implements ServiceManager\AbstractFactoryInt
     {
         $config  = $serviceLocator->get('config');
         $adapter = $config['fdl_gateway_manager_config']['adapter'];
-        $adapterUtilities = $serviceLocator->get('FdlAdapterServiceUtilities');
+        $adapterPreparer = $serviceLocator->get('FdlAdapterPreparerUtility');
+        $workerEvent = $serviceLocator->get('FdlGatewayFactory')->getWorkerEvent();
+
+        // destroy any existing seed
+        $adapterPreparer->destroySeed();
+
+        // seeds the preparer
+        if (isset($workerEvent)) {
+            $adapterPreparer->seed($workerEvent->getAdapterKey());
+        }
 
         try {
-            $adapter = $adapterUtilities->getOptionsAdapterClass() ?: $serviceLocator->get($adapter);
+            // we need to use a try catch block because "Zend\Db\Adapter\Adapter" will result
+            // a "true" when used against an $sm->has()
+            $adapter = $adapterPreparer->getAdapterClass() ?: $serviceLocator->get($adapter);
         } catch (\Exception $e) {
             if (!class_exists($adapter)) {
                 throw new Exception\ErrorException('Adapter class: "' . $adapter . '" does not exist');
             }
 
             $adapter = new $adapter(
-                $adapterUtilities->getDriverParams(),
-                $adapterUtilities->getOptionsPlatform(),
-                $adapterUtilities->getOptionsQueryResultPrototype(),
-                $adapterUtilities->getOptionsProfiler()
+                $adapterPreparer->getOptionDriverParams(),
+                $adapterPreparer->getOptionPlatform(),
+                $adapterPreparer->getOptionQueryResultPrototype(),
+                $adapterPreparer->getOptionProfiler()
             );
         }
 
         if (!$adapter instanceof AdapterInterface) {
-            throw new Exception\ErrorException('Adapter class: "' . $adapter . '" is not of AdapterInterface');
+            throw new Exception\ErrorException('Adapter class: "' . $adapter . '" is not of Zend\Db\Adapter\AdapterInterface');
         }
 
         return $adapter;

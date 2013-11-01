@@ -2,6 +2,7 @@
 namespace FdlGatewayManager;
 
 use Zend\ServiceManager;
+use Zend\Stdlib\ArrayUtils;
 
 class GatewayManager extends AbstractServiceLocatorAware
 {
@@ -43,8 +44,12 @@ class GatewayManager extends AbstractServiceLocatorAware
      * @param string $index
      * @return \Zend\Db\TableGateway\TableGateway
      */
-    public function factory(array $params)
+    public function factory($params)
     {
+        if ($params instanceof \Traversable) {
+            $params = ArrayUtils::iteratorToArray($params);
+        }
+
         $workerEvent = $this->getServiceLocator()->get('FdlGatewayWorkerEvent');
 
         if (isset($params['adapter_key'])) {
@@ -101,7 +106,7 @@ class GatewayManager extends AbstractServiceLocatorAware
         // attach the listeners
         $serviceManager       = $this->getServiceLocator();
         $factoryEventManager  = $this->factoryEventManager;
-        $factory              = $serviceManager->get('FdlGatewayFactory')->setWorkerEvent($workerEvent);
+        $gatewayFactory       = $serviceManager->get('FdlGatewayFactory')->setWorkerEvent($workerEvent);
         $workerEventListeners = $serviceManager->get('FdlGatewayWorkerEventListeners');
         $config               = $serviceManager->get('config');
 
@@ -115,21 +120,20 @@ class GatewayManager extends AbstractServiceLocatorAware
 
         // This is where to hook to WorkerEvent
         // Each listener here is triggered everytime a gateway is created
-        // so be careful
         $this->factoryEventManager->trigger(
             GatewayFactoryEvent::PRE_RUN,
-            $factory,
+            $gatewayFactory,
             $serviceManager->get('FdlGatewayFactoryEvent')
         );
 
         // execute the listeners
-        $factory->run();
+        $gatewayFactory->run();
 
         // retrieve the instantiated tablegateway
-        $tableGateway = $factory->getTableGateway();
+        $tableGateway = $gatewayFactory->getTableGateway();
 
         //reset the factory and detach attached listeners
-        $factory->clearProperties();
+        $gatewayFactory->clearProperties();
         $factoryEventManager->detach($workerEventListeners);
 
         return $tableGateway;

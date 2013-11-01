@@ -37,13 +37,13 @@ class Module
     {
         return array(
             'invokables' => array(
-                'FdlAdapterServiceUtilities'           => 'FdlGatewayManager\Utils\AdapterServiceUtilities',
+                'FdlAdapterPreparerUtility'            => 'FdlGatewayManager\Utils\AdapterPreparerUtility',
                 'FdlGatewayFactoryUtilities'           => 'FdlGatewayManager\Utils\GatewayFactoryUtilities',
+                'FdlAdapterManager'                    => 'FdlGatewayManager\AdapterManager',
                 'FdlGatewayFactory'                    => 'FdlGatewayManager\GatewayFactory',
                 'FdlGatewayWorkerEvent'                => 'FdlGatewayManager\GatewayWorkerEvent',
                 'FdlGatewayFactoryEvent'               => 'FdlGatewayManager\GatewayFactoryEvent',
                 'FdlGatewayWorkerEventListeners'       => 'FdlGatewayManager\GatewayWorkerEventListeners',
-                'FdlGatewayFactoryAdapterKeyContainer' => 'FdlGatewayManager\GatewayFactoryAdapterKeyContainer',
             ),
             'factories' => array(
                 'FdlGatewayPlugin'               => 'FdlGatewayManager\Service\FdlGatewayPluginFactory',

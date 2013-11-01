@@ -5,7 +5,7 @@ use FdlGatewayManager\AbstractServiceLocatorAware;
 use FdlGatewayManager\Exception;
 use Zend\Soap\call_user_func;
 
-class AdapterServiceUtilities extends AbstractServiceLocatorAware
+class AdapterPreparerUtility extends AbstractServiceLocatorAware implements PreparerUtilityInterface
 {
     /**
      * @var Array
@@ -13,23 +13,27 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
     protected $dbConfig;
 
     /**
+     * The seed
      * @var string
      */
     protected $adapterKey;
 
     /**
-     * @param array $config
-     * @return array
+     * (non-PHPdoc)
+     * @see \FdlGatewayManager\Utils\PreparerUtilityInterface::seed()
      */
-    public function getDriverParams()
+    public function seed($seed = null)
     {
-        $driverParams = $this->getAdapterConfig();
+        $this->adapterKey = $seed;
+    }
 
-        if (isset($driverParams['options'])) {
-            unset($driverParams['options']);
-        }
-
-        return $driverParams;
+    /**
+     * (non-PHPdoc)
+     * @see \FdlGatewayManager\Utils\PreparerUtilityInterface::destroySeed()
+     */
+    public function destroySeed()
+    {
+        $this->adapterKey = null;
     }
 
     /**
@@ -40,9 +44,9 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
      *
      * @return \Zend\Db\Adapter\Adapter|mixed
      */
-    public function getOptionsAdapterClass()
+    public function getAdapterClass()
     {
-        $optionsConfig = $this->getOptions();
+        $optionsConfig = $this->getOptionsConfig();
         $adapterClass = isset($optionsConfig['adapter_class']) ? $optionsConfig['adapter_class']
                       : (isset($optionsConfig['adapter']) ? $optionsConfig['adapter'] : null);
 
@@ -53,9 +57,24 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
         return $adapterClass;
     }
 
-    public function getOptionsPlatform()
+    /**
+     * @param array $config
+     * @return array
+     */
+    public function getOptionDriverParams()
     {
-        $optionsConfig = $this->getOptions();
+        $driverParams = $this->getAdapterConfig();
+
+        if (isset($driverParams['options'])) {
+            unset($driverParams['options']);
+        }
+
+        return $driverParams;
+    }
+
+    public function getOptionPlatform()
+    {
+        $optionsConfig = $this->getOptionsConfig();
 
         if (isset($optionsConfig['platform'])) {
             $namespace = 'Zend\Db\Adapter\Platform';
@@ -64,9 +83,9 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
         }
     }
 
-    public function getOptionsQueryResultPrototype()
+    public function getOptionQueryResultPrototype()
     {
-        $optionsConfig = $this->getOptions();
+        $optionsConfig = $this->getOptionsConfig();
 
         if (isset($optionsConfig['query_result_prototype'])) {
             $namespace = 'Zend\Db\ResultSet';
@@ -75,9 +94,9 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
         }
     }
 
-    public function getOptionsProfiler()
+    public function getOptionProfiler()
     {
-        $optionsConfig = $this->getOptions();
+        $optionsConfig = $this->getOptionsConfig();
 
         if (isset($optionsConfig['profiler'])) {
             $namespace = 'Zend\Db\Adapter\Profiler';
@@ -93,17 +112,14 @@ class AdapterServiceUtilities extends AbstractServiceLocatorAware
      */
     public function getAdapterKey()
     {
-        $workerEvent = $this->getServiceLocator()->get('FdlGatewayFactory')->getWorkerEvent();
-        if (isset($workerEvent)) {
-            return $workerEvent->getAdapterKey();
-        }
+        return $this->adapterKey;
     }
 
     /**
      * Return the options param from the dbConfig
      * @return array|null
      */
-    public function getOptions()
+    public function getOptionsConfig()
     {
         $adapterConfig = $this->getAdapterConfig();
         if (isset($adapterConfig['options'])) {
